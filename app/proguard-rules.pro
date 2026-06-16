@@ -1,0 +1,4 @@
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.vibeout.talaa.core.network.dto.** { *; }
+-dontwarn javax.annotation.**

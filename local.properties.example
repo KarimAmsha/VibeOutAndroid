@@ -1,0 +1,5 @@
+# Copy this file to local.properties and adjust the values.
+# Android Studio usually writes sdk.dir automatically.
+sdk.dir=/Users/YOUR_NAME/Library/Android/sdk
+VIBEOUT_API_BASE_URL=http://10.0.2.2:3000/api/v1/
+GOOGLE_MAPS_API_KEY=

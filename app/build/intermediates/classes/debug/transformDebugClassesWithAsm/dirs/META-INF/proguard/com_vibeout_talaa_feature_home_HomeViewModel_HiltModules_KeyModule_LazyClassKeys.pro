@@ -1,0 +1,1 @@
+-keep,allowobfuscation,allowshrinking class com.vibeout.talaa.feature.home.HomeViewModel

@@ -1,0 +1,94 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+
+package com.vibeout.talaa.feature.safety
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.vibeout.talaa.R
+import com.vibeout.talaa.core.model.ReportReason
+import com.vibeout.talaa.data.AppRepository
+import com.vibeout.talaa.ui.components.ChoiceChips
+import com.vibeout.talaa.ui.components.VibeOutTopBar
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@Composable
+fun SafetyCenterScreen(onBack: () -> Unit) {
+    Scaffold(topBar = { VibeOutTopBar(stringResource(R.string.safety_center), onBack) }) { padding ->
+        Column(Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            SafetyTip(Icons.Default.Public, stringResource(R.string.safety_tip_public))
+            SafetyTip(Icons.Default.PrivacyTip, stringResource(R.string.safety_tip_personal))
+            SafetyTip(Icons.Default.Share, stringResource(R.string.safety_tip_friend))
+            AssistChip(onClick = {}, label = { Text(stringResource(R.string.uncomfortable)) }, leadingIcon = { Icon(Icons.Default.Warning, null) })
+        }
+    }
+}
+
+@Composable private fun SafetyTip(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
+    ElevatedCard { Row(Modifier.fillMaxWidth().padding(16.dp)) { Icon(icon, null, tint = MaterialTheme.colorScheme.primary); Spacer(Modifier.width(12.dp)); Text(text) } }
+}
+
+data class ReportUiState(val sending: Boolean = false, val sent: Boolean = false, val error: String? = null)
+
+@HiltViewModel
+class ReportViewModel @Inject constructor(savedStateHandle: SavedStateHandle, private val repository: AppRepository) : ViewModel() {
+    val targetType: String = checkNotNull(savedStateHandle["targetType"])
+    val targetId: String = checkNotNull(savedStateHandle["targetId"])
+    private val _state = MutableStateFlow(ReportUiState())
+    val state: StateFlow<ReportUiState> = _state.asStateFlow()
+    fun submit(reason: ReportReason, description: String?) = viewModelScope.launch {
+        _state.value = ReportUiState(sending = true)
+        runCatching { repository.report(targetType, targetId, reason.name, description) }
+            .onSuccess { _state.value = ReportUiState(sent = true) }
+            .onFailure { _state.value = ReportUiState(error = it.message) }
+    }
+}
+
+@Composable
+fun ReportScreen(onBack: () -> Unit, viewModel: ReportViewModel = hiltViewModel()) {
+    val state by viewModel.state.collectAsState()
+    var reason by remember { mutableStateOf(ReportReason.OTHER) }
+    var description by remember { mutableStateOf("") }
+    LaunchedEffect(state.sent) { if (state.sent) onBack() }
+    Scaffold(topBar = { VibeOutTopBar(stringResource(R.string.report), onBack) }) { padding ->
+        Column(Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Text(stringResource(R.string.report_reason), style = MaterialTheme.typography.titleMedium)
+            ChoiceChips(
+                values = ReportReason.entries.map { it.name to reportLabel(it) },
+                selected = reason.name,
+                onSelected = { reason = ReportReason.valueOf(it) },
+            )
+            OutlinedTextField(description, { description = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.report_description)) }, minLines = 4)
+            state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            Button(onClick = { viewModel.submit(reason, description.takeIf(String::isNotBlank)) }, enabled = !state.sending, modifier = Modifier.fillMaxWidth()) {
+                if (state.sending) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp) else Text(stringResource(R.string.submit_report))
+            }
+        }
+    }
+}
+
+@Composable private fun reportLabel(reason: ReportReason): String = stringResource(when (reason) {
+    ReportReason.HARASSMENT -> R.string.report_harassment
+    ReportReason.FAKE_PROFILE -> R.string.report_fake
+    ReportReason.INAPPROPRIATE_BEHAVIOR -> R.string.report_inappropriate
+    ReportReason.SPAM -> R.string.report_spam
+    ReportReason.UNSAFE_PLACE -> R.string.report_unsafe
+    ReportReason.HATE_OR_ABUSE -> R.string.report_hate
+    ReportReason.OTHER -> R.string.report_other
+})
