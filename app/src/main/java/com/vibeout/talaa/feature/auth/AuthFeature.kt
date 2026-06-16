@@ -2,6 +2,7 @@
 
 package com.vibeout.talaa.feature.auth
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -14,7 +15,9 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -29,9 +32,11 @@ import com.vibeout.talaa.core.network.dto.RegisterRequest
 import com.vibeout.talaa.core.storage.AppPreferences
 import com.vibeout.talaa.data.AppRepository
 import com.vibeout.talaa.ui.common.*
-import com.vibeout.talaa.ui.components.ErrorPane
-import com.vibeout.talaa.ui.components.LoadingPane
 import com.vibeout.talaa.ui.components.SimpleListPicker
+import com.vibeout.talaa.ui.designsystem.*
+import com.vibeout.talaa.ui.theme.BrandEnergy
+import com.vibeout.talaa.ui.theme.BrandMint
+import com.vibeout.talaa.ui.theme.BrandNight
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -70,37 +75,54 @@ class SplashViewModel @Inject constructor(
 fun SplashScreen(onDestination: (SplashDestination) -> Unit, viewModel: SplashViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
     LaunchedEffect(state.destination) { state.destination?.let(onDestination) }
-    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.primary) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Icon(Icons.Default.Explore, null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(84.dp))
-            Spacer(Modifier.height(16.dp))
-            Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onPrimary)
-            Text(stringResource(R.string.tagline), color = MaterialTheme.colorScheme.onPrimary)
-            Spacer(Modifier.height(24.dp))
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+
+    Box(Modifier.fillMaxSize().background(BrandNight), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            VibeLogoMark(Modifier.size(104.dp), containerColor = Color.White, contentColor = BrandNight)
+            Spacer(Modifier.height(28.dp))
+            Text(stringResource(R.string.app_name), color = Color.White, style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.ExtraBold)
+            Spacer(Modifier.height(8.dp))
+            Text(stringResource(R.string.tagline), color = Color.White.copy(alpha = 0.70f), style = MaterialTheme.typography.bodyLarge)
+            Spacer(Modifier.height(34.dp))
+            LinearProgressIndicator(Modifier.width(72.dp), color = BrandEnergy, trackColor = Color.White.copy(alpha = 0.10f))
+        }
+        Row(
+            Modifier.align(Alignment.BottomCenter).padding(bottom = 34.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(Modifier.size(8.dp).background(BrandMint, CircleShape))
+            Text("REAL PLANS. REAL CITY.", color = Color.White.copy(alpha = 0.52f), style = MaterialTheme.typography.labelSmall)
         }
     }
 }
 
 @Composable
 fun OnboardingScreen(onDone: () -> Unit) {
-    Surface(Modifier.fillMaxSize()) {
+    VibeScreen {
         Column(
-            Modifier.fillMaxSize().padding(28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 32.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Icon(Icons.Default.AutoAwesome, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(92.dp))
-            Spacer(Modifier.height(24.dp))
-            Text(stringResource(R.string.welcome_title), style = MaterialTheme.typography.headlineMedium)
-            Spacer(Modifier.height(12.dp))
-            Text(stringResource(R.string.welcome_body), style = MaterialTheme.typography.bodyLarge)
-            Spacer(Modifier.height(32.dp))
-            Button(
-                onClick = onDone,
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text(stringResource(R.string.get_started)) }
+            VibeLogoLockup(stringResource(R.string.app_name), stringResource(R.string.tagline))
+            Column(Modifier.padding(vertical = 34.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                VibeHeroCard("VIBEOUT", stringResource(R.string.welcome_title), stringResource(R.string.welcome_body), Modifier.fillMaxWidth())
+                BenefitRow(Icons.Default.AutoAwesome, stringResource(R.string.generate_plan), BrandEnergy)
+                BenefitRow(Icons.Default.Place, stringResource(R.string.places), BrandMint)
+                BenefitRow(Icons.Default.Groups, stringResource(R.string.vibes), MaterialTheme.colorScheme.tertiary)
+            }
+            VibePrimaryButton(stringResource(R.string.get_started), onDone, Modifier.fillMaxWidth())
         }
+    }
+}
+
+@Composable
+private fun BenefitRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, accent: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+        Surface(shape = CircleShape, color = accent.copy(alpha = 0.14f), contentColor = accent) {
+            Icon(icon, null, Modifier.padding(12.dp).size(22.dp))
+        }
+        Text(text, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -157,65 +179,68 @@ fun LoginScreen(
     var password by rememberSaveable { mutableStateOf("") }
     var visible by rememberSaveable { mutableStateOf(false) }
     var localError by rememberSaveable { mutableStateOf<String?>(null) }
+    val invalidEmail = stringResource(R.string.invalid_email)
+    val invalidPassword = stringResource(R.string.invalid_password)
 
     LaunchedEffect(state.authenticated) { if (state.authenticated) onLoginSuccess() }
 
-    Column(
-        Modifier.fillMaxSize().padding(24.dp).verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Icon(Icons.Default.Explore, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(64.dp))
-        Spacer(Modifier.height(16.dp))
-        Text(stringResource(R.string.login), style = MaterialTheme.typography.headlineMedium)
-        Spacer(Modifier.height(24.dp))
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(stringResource(R.string.email)) },
-            leadingIcon = { Icon(Icons.Default.Email, null) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-            singleLine = true,
-        )
-        Spacer(Modifier.height(12.dp))
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(stringResource(R.string.password)) },
-            leadingIcon = { Icon(Icons.Default.Lock, null) },
-            trailingIcon = {
-                IconButton(onClick = { visible = !visible }) {
-                    Icon(if (visible) Icons.Default.VisibilityOff else Icons.Default.Visibility, null)
-                }
-            },
-            visualTransformation = if (visible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { viewModel.login(email, password) }),
-            singleLine = true,
-        )
-        (localError ?: state.error)?.let {
-            Spacer(Modifier.height(12.dp))
-            Text(it, color = MaterialTheme.colorScheme.error)
-        }
-        Spacer(Modifier.height(20.dp))
-        Button(
-            onClick = {
-                localError = when {
-                    !email.isValidEmail() -> null
-                    !password.isStrongPassword() -> null
-                    else -> null
-                }
-                if (email.isValidEmail() && password.isStrongPassword()) viewModel.login(email, password)
-            },
-            enabled = !state.loading,
-            modifier = Modifier.fillMaxWidth(),
+    VibeScreen {
+        Column(
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 34.dp),
+            verticalArrangement = Arrangement.Center,
         ) {
-            if (state.loading) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-            else Text(stringResource(R.string.login))
-        }
-        TextButton(onClick = onRegister, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            Text(stringResource(R.string.no_account) + " " + stringResource(R.string.register))
+            VibeLogoLockup(stringResource(R.string.app_name), stringResource(R.string.tagline))
+            Spacer(Modifier.height(44.dp))
+            Text(stringResource(R.string.login), style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.ExtraBold)
+            Spacer(Modifier.height(8.dp))
+            Text(stringResource(R.string.welcome_body), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyLarge)
+            Spacer(Modifier.height(28.dp))
+            VibeTextField(
+                email, { email = it; localError = null }, stringResource(R.string.email), Modifier.fillMaxWidth(), Icons.Default.Email,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+            )
+            Spacer(Modifier.height(14.dp))
+            VibeTextField(
+                value = password,
+                onValueChange = { password = it; localError = null },
+                label = stringResource(R.string.password),
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = Icons.Default.Lock,
+                trailingContent = {
+                    IconButton(onClick = { visible = !visible }) {
+                        Icon(if (visible) Icons.Default.VisibilityOff else Icons.Default.Visibility, null)
+                    }
+                },
+                visualTransformation = if (visible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = {
+                    if (email.isValidEmail() && password.isStrongPassword()) viewModel.login(email, password)
+                }),
+            )
+            (localError ?: state.error)?.let {
+                Spacer(Modifier.height(12.dp))
+                Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.errorContainer) {
+                    Text(it, Modifier.fillMaxWidth().padding(12.dp), color = MaterialTheme.colorScheme.onErrorContainer)
+                }
+            }
+            Spacer(Modifier.height(22.dp))
+            VibePrimaryButton(
+                text = stringResource(R.string.login),
+                onClick = {
+                    localError = when {
+                        !email.isValidEmail() -> invalidEmail
+                        !password.isStrongPassword() -> invalidPassword
+                        else -> null
+                    }
+                    if (localError == null) viewModel.login(email.trim(), password)
+                },
+                loading = state.loading,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(10.dp))
+            TextButton(onClick = onRegister, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text(stringResource(R.string.no_account) + " " + stringResource(R.string.register), fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
@@ -240,52 +265,60 @@ fun RegisterScreen(
     var pickerOpen by rememberSaveable { mutableStateOf(false) }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
-    Scaffold(topBar = { com.vibeout.talaa.ui.components.VibeOutTopBar(stringResource(R.string.register), onBack) }) { padding ->
-        Column(
-            Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            OutlinedTextField(firstName, { firstName = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.first_name)) }, singleLine = true)
-            OutlinedTextField(displayName, { displayName = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.display_name)) }, singleLine = true)
-            OutlinedTextField(email, { email = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.email)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), singleLine = true)
-            OutlinedTextField(phone, { phone = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.phone)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), singleLine = true)
-            OutlinedTextField(
-                password, { password = it }, Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.password)) },
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = { IconButton(onClick = { passwordVisible = !passwordVisible }) { Icon(if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility, null) } },
-                singleLine = true,
-            )
-            OutlinedTextField(birthYear, { birthYear = it.filter(Char::isDigit).take(4) }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.birth_year)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true)
-
-            OutlinedButton(onClick = { pickerOpen = true }, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Default.LocationCity, null)
-                Spacer(Modifier.width(8.dp))
-                Text(state.cities.firstOrNull { it.id == cityId }?.localizedName(Locale.getDefault()) ?: stringResource(R.string.choose_city))
-            }
-            state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            Button(
-                onClick = {
-                    val selectedCity = cityId ?: return@Button
-                    viewModel.register(
-                        RegisterRequest(
-                            firstName = firstName.trim(),
-                            displayName = displayName.trim().takeIf { it.isNotEmpty() },
-                            email = email.trim(),
-                            phone = phone.trim(),
-                            password = password,
-                            birthYear = birthYear.toIntOrNull(),
-                            cityId = selectedCity,
-                            languages = listOf(Locale.getDefault().language),
-                            interests = emptyList(),
-                        )
-                    )
-                },
-                enabled = !state.loading && firstName.length >= 2 && email.isValidEmail() && password.isStrongPassword() && phone.length >= 7 && cityId != null,
-                modifier = Modifier.fillMaxWidth(),
+    Scaffold(topBar = { VibeTopBar(stringResource(R.string.register), onBack) }) { padding ->
+        VibeScreen(Modifier.padding(padding)) {
+            Column(
+                Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                if (state.loading) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-                else Text(stringResource(R.string.create_account))
+                Text(stringResource(R.string.create_account), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
+                Text(stringResource(R.string.profile_setup_body), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                VibeTextField(firstName, { firstName = it }, stringResource(R.string.first_name), Modifier.fillMaxWidth(), Icons.Default.Person)
+                VibeTextField(displayName, { displayName = it }, stringResource(R.string.display_name), Modifier.fillMaxWidth(), Icons.Default.Badge)
+                VibeTextField(email, { email = it }, stringResource(R.string.email), Modifier.fillMaxWidth(), Icons.Default.Email, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
+                VibeTextField(phone, { phone = it }, stringResource(R.string.phone), Modifier.fillMaxWidth(), Icons.Default.Phone, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone))
+                VibeTextField(
+                    password, { password = it }, stringResource(R.string.password), Modifier.fillMaxWidth(), Icons.Default.Lock,
+                    trailingContent = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility, null)
+                        }
+                    },
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                )
+                VibeTextField(
+                    birthYear, { birthYear = it.filter(Char::isDigit).take(4) }, stringResource(R.string.birth_year), Modifier.fillMaxWidth(), Icons.Default.Cake,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                )
+                OutlinedButton(onClick = { pickerOpen = true }, modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(18.dp)) {
+                    Icon(Icons.Default.LocationCity, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(state.cities.firstOrNull { it.id == cityId }?.localizedName(Locale.getDefault()) ?: stringResource(R.string.choose_city))
+                }
+                state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                VibePrimaryButton(
+                    text = stringResource(R.string.create_account),
+                    onClick = {
+                        val selectedCity = cityId ?: return@VibePrimaryButton
+                        viewModel.register(
+                            RegisterRequest(
+                                firstName = firstName.trim(),
+                                displayName = displayName.trim().takeIf { it.isNotEmpty() },
+                                email = email.trim(),
+                                phone = phone.trim(),
+                                password = password,
+                                birthYear = birthYear.toIntOrNull(),
+                                cityId = selectedCity,
+                                languages = listOf(Locale.getDefault().language),
+                                interests = emptyList(),
+                            )
+                        )
+                    },
+                    enabled = firstName.length >= 2 && email.isValidEmail() && password.isStrongPassword() && phone.length >= 7 && cityId != null,
+                    loading = state.loading,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(24.dp))
             }
         }
     }
