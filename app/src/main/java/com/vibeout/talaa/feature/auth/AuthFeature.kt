@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -254,6 +255,7 @@ fun RegisterScreen(
     viewModel: AuthViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+    val currentLocale = LocalConfiguration.current.locales[0]
     LaunchedEffect(Unit) { viewModel.loadCities() }
     LaunchedEffect(state.authenticated) { if (state.authenticated) onSuccess() }
 
@@ -295,7 +297,7 @@ fun RegisterScreen(
                 OutlinedButton(onClick = { pickerOpen = true }, modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(18.dp)) {
                     Icon(Icons.Default.LocationCity, null)
                     Spacer(Modifier.width(8.dp))
-                    Text(state.cities.firstOrNull { it.id == cityId }?.localizedName(Locale.getDefault()) ?: stringResource(R.string.choose_city))
+                    Text(state.cities.firstOrNull { it.id == cityId }?.localizedName(currentLocale) ?: stringResource(R.string.choose_city))
                 }
                 state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 VibePrimaryButton(
@@ -311,7 +313,7 @@ fun RegisterScreen(
                                 password = password,
                                 birthYear = birthYear.toIntOrNull(),
                                 cityId = selectedCity,
-                                languages = listOf(Locale.getDefault().language),
+                                languages = listOf(currentLocale.language),
                                 interests = emptyList(),
                             )
                         )
@@ -328,7 +330,7 @@ fun RegisterScreen(
     if (pickerOpen) {
         SimpleListPicker(
             title = stringResource(R.string.choose_city),
-            items = state.cities.map { it.id to it.localizedName(Locale.getDefault()) },
+            items = state.cities.map { it.id to it.localizedName(currentLocale) },
             onPick = { cityId = it; pickerOpen = false },
             onDismiss = { pickerOpen = false },
         )

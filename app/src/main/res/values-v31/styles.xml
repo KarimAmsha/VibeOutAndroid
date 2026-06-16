@@ -10,6 +10,10 @@
 
         <item name="android:windowActionModeOverlay">true</item>
 
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_vibeout_splash</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
+        <item name="android:windowSplashScreenAnimationDuration">250</item>
     </style>
 
 </resources>
