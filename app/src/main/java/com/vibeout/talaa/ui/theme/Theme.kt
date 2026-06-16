@@ -7,25 +7,29 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val LightColors = lightColorScheme(
-    primary = Indigo,
-    secondary = Coral,
-    background = Cream,
-    surface = Cream,
+    primary = BrandNight,
+    secondary = BrandEnergy,
+    tertiary = BrandMint,
+    background = WarmCanvas,
+    surface = WarmSurface,
+    surfaceVariant = WarmSurfaceAlt,
+    onBackground = InkPrimary,
+    onSurface = InkPrimary,
+    onSurfaceVariant = InkSecondary,
+    outlineVariant = BorderWarm,
     error = Danger,
 )
 
 private val DarkColors = darkColorScheme(
-    primary = ColorTokens.PrimaryDark,
-    secondary = Coral,
-    background = DarkBackground,
+    primary = BrandEnergy,
+    secondary = BrandMint,
+    tertiary = BrandSky,
+    background = DarkCanvas,
     surface = DarkSurface,
-    error = ColorTokens.ErrorDark,
+    surfaceVariant = DarkSurfaceAlt,
+    outlineVariant = DarkBorder,
+    error = Danger,
 )
-
-private object ColorTokens {
-    val PrimaryDark = androidx.compose.ui.graphics.Color(0xFFA5B4FC)
-    val ErrorDark = androidx.compose.ui.graphics.Color(0xFFFCA5A5)
-}
 
 @Composable
 fun VibeOutTheme(

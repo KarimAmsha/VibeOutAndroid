@@ -161,7 +161,7 @@ fun VibeOutApp(rootViewModel: AppRootViewModel = hiltViewModel()) {
                     )
                 }
                 composable(Routes.Home) {
-                    HomeScreen(
+                    PremiumHomeScreen(
                         onOpenPlan = { navController.navigate("plan/$it") },
                         onOpenPlaces = { navController.navigate(Routes.Places) },
                         onCreateVibe = { navController.navigate("create_vibe?placeId=none") },
