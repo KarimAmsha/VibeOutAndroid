@@ -21,8 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.vibeout.talaa.R
 import com.vibeout.talaa.core.model.MoodType
+import com.vibeout.talaa.ui.common.localizedName
 import com.vibeout.talaa.ui.designsystem.*
 import com.vibeout.talaa.ui.theme.BrandEnergy
+import java.util.Locale
 
 @Composable
 fun PremiumHomeScreen(
@@ -57,7 +59,7 @@ fun PremiumHomeScreen(
             }
 
             VibeHeroCard(
-                eyebrow = state.user?.city?.name ?: stringResource(R.string.city),
+                eyebrow = state.user?.city?.localizedName(Locale.getDefault()) ?: stringResource(R.string.city),
                 title = stringResource(R.string.mood_hint),
                 body = stringResource(R.string.welcome_body),
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),

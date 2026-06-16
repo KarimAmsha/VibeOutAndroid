@@ -70,9 +70,10 @@ fun VibeLogoMark(
 
 @Composable
 fun VibeScreen(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    val primaryGlow = MaterialTheme.colorScheme.primary.copy(alpha = 0.035f)
     Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Canvas(Modifier.fillMaxSize()) {
-            drawCircle(MaterialTheme.colorScheme.primary.copy(alpha = 0.035f), size.minDimension * 0.42f, Offset(size.width, 0f))
+            drawCircle(primaryGlow, size.minDimension * 0.42f, Offset(size.width, 0f))
             drawCircle(BrandEnergy.copy(alpha = 0.035f), size.minDimension * 0.30f, Offset(0f, size.height))
         }
         content()
