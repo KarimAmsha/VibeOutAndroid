@@ -58,6 +58,48 @@ class AppRepository @Inject constructor(
         _currentUser.value = null
     }
 
+
+    suspend fun forgotPassword(
+        email: String,
+        locale: String?,
+    ): PasswordResetMessage =
+        executor.execute {
+            api.forgotPassword(
+                ForgotPasswordRequest(
+                    email = email.trim().lowercase(),
+                    locale = locale,
+                )
+            )
+        }
+
+    suspend fun verifyResetCode(
+        email: String,
+        code: String,
+    ): VerifyResetCodeResponse =
+        executor.execute {
+            api.verifyResetCode(
+                VerifyResetCodeRequest(
+                    email = email.trim().lowercase(),
+                    code = code,
+                )
+            )
+        }
+
+    suspend fun resetPassword(
+        email: String,
+        resetToken: String,
+        newPassword: String,
+    ): PasswordResetMessage =
+        executor.execute {
+            api.resetPassword(
+                ResetPasswordRequest(
+                    email = email.trim().lowercase(),
+                    resetToken = resetToken,
+                    newPassword = newPassword,
+                )
+            )
+        }
+
     suspend fun getCities(force: Boolean = false): List<City> {
         if (!force) {
             val cached = cityDao.getAll()

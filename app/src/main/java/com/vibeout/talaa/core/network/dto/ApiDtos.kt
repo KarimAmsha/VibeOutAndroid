@@ -114,3 +114,29 @@ data class CreateReportRequest(
 )
 
 data class CreateBlockRequest(val blockedUserId: String, val reason: String? = null)
+
+data class ForgotPasswordRequest(
+    val email: String,
+    val locale: String? = null,
+)
+
+data class VerifyResetCodeRequest(
+    val email: String,
+    val code: String,
+)
+
+data class VerifyResetCodeResponse(
+    val resetToken: String,
+    val expiresInSeconds: Int,
+)
+
+data class ResetPasswordRequest(
+    val email: String,
+    val resetToken: String,
+    val newPassword: String,
+)
+
+data class PasswordResetMessage(
+    val message: String,
+)
+

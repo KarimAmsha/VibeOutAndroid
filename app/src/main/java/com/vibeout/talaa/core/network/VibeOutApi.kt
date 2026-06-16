@@ -88,4 +88,19 @@ interface VibeOutApi {
     ): Response<ApiEnvelope<List<NotificationItem>>>
     @PUT("notifications/{id}/read") suspend fun markNotificationRead(@Path("id") id: String): Response<ApiEnvelope<Unit>>
     @PUT("notifications/read-all") suspend fun markAllNotificationsRead(): Response<ApiEnvelope<Unit>>
+
+    @POST("auth/forgot-password")
+    suspend fun forgotPassword(
+        @Body body: ForgotPasswordRequest,
+    ): Response<ApiEnvelope<PasswordResetMessage>>
+
+    @POST("auth/verify-reset-code")
+    suspend fun verifyResetCode(
+        @Body body: VerifyResetCodeRequest,
+    ): Response<ApiEnvelope<VerifyResetCodeResponse>>
+
+    @POST("auth/reset-password")
+    suspend fun resetPassword(
+        @Body body: ResetPasswordRequest,
+    ): Response<ApiEnvelope<PasswordResetMessage>>
 }

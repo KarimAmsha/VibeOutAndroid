@@ -175,6 +175,7 @@ class AuthViewModel @Inject constructor(private val repository: AppRepository) :
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onRegister: () -> Unit,
+    onForgotPassword: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -220,6 +221,15 @@ fun LoginScreen(
                     if (email.isValidEmail() && password.isStrongPassword()) viewModel.login(email, password)
                 }),
             )
+            TextButton(
+                onClick = onForgotPassword,
+                modifier = Modifier.align(Alignment.End),
+            ) {
+                Text(
+                    stringResource(R.string.forgot_password),
+                    fontWeight = FontWeight.Bold,
+                )
+            }
             (localError ?: state.error)?.let {
                 Spacer(Modifier.height(12.dp))
                 Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.errorContainer) {

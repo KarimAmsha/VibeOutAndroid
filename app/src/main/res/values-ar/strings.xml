@@ -202,4 +202,21 @@
     <string name="empty_state">ما في شيء هون لسه.</string>
     <string name="offline_cached">نعرض بيانات محفوظة لأنك غير متصل.</string>
     <string name="unknown">غير معروف</string>
+    <string name="forgot_password">نسيت كلمة المرور؟</string>
+    <string name="reset_password_title">استعادة كلمة المرور</string>
+    <string name="forgot_password_body">أدخل بريدك الإلكتروني وسنرسل رمز تحقق من 6 أرقام.</string>
+    <string name="send_reset_code">إرسال الرمز</string>
+    <string name="enter_reset_code">أدخل رمز التحقق</string>
+    <string name="reset_code_sent_to">أرسلنا رمزاً إلى %1$s</string>
+    <string name="reset_code">رمز التحقق</string>
+    <string name="verify_code">تحقق من الرمز</string>
+    <string name="resend_code">إرسال رمز جديد</string>
+    <string name="create_new_password">أنشئ كلمة مرور جديدة</string>
+    <string name="new_password_body">استخدم 8 أحرف على الأقل لكلمة المرور الجديدة.</string>
+    <string name="new_password">كلمة المرور الجديدة</string>
+    <string name="confirm_new_password">تأكيد كلمة المرور الجديدة</string>
+    <string name="reset_password">تغيير كلمة المرور</string>
+    <string name="password_reset_success">تم تحديث كلمة المرور</string>
+    <string name="password_reset_success_body">تم تغيير كلمة المرور بنجاح. يمكنك تسجيل الدخول الآن.</string>
+    <string name="back_to_login">العودة لتسجيل الدخول</string>
 </resources>

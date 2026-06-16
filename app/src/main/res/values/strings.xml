@@ -202,4 +202,21 @@
     <string name="empty_state">Nothing here yet.</string>
     <string name="offline_cached">Showing saved data while offline.</string>
     <string name="unknown">Unknown</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="reset_password_title">Reset password</string>
+    <string name="forgot_password_body">Enter your email and we will send a 6-digit verification code.</string>
+    <string name="send_reset_code">Send code</string>
+    <string name="enter_reset_code">Enter verification code</string>
+    <string name="reset_code_sent_to">We sent a code to %1$s</string>
+    <string name="reset_code">Verification code</string>
+    <string name="verify_code">Verify code</string>
+    <string name="resend_code">Send a new code</string>
+    <string name="create_new_password">Create a new password</string>
+    <string name="new_password_body">Use at least 8 characters for your new password.</string>
+    <string name="new_password">New password</string>
+    <string name="confirm_new_password">Confirm new password</string>
+    <string name="reset_password">Reset password</string>
+    <string name="password_reset_success">Password updated</string>
+    <string name="password_reset_success_body">Your password was changed successfully. You can now sign in.</string>
+    <string name="back_to_login">Back to login</string>
 </resources>

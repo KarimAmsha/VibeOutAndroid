@@ -202,4 +202,21 @@
     <string name="empty_state">Henüz burada bir şey yok.</string>
     <string name="offline_cached">Çevrimdışı olduğun için kayıtlı veriler gösteriliyor.</string>
     <string name="unknown">Bilinmiyor</string>
+    <string name="forgot_password">Şifremi unuttum?</string>
+    <string name="reset_password_title">Şifreni yenile</string>
+    <string name="forgot_password_body">E-posta adresini gir; 6 haneli doğrulama kodunu gönderelim.</string>
+    <string name="send_reset_code">Kodu gönder</string>
+    <string name="enter_reset_code">Doğrulama kodunu gir</string>
+    <string name="reset_code_sent_to">%1$s adresine bir kod gönderdik</string>
+    <string name="reset_code">Doğrulama kodu</string>
+    <string name="verify_code">Kodu doğrula</string>
+    <string name="resend_code">Yeni kod gönder</string>
+    <string name="create_new_password">Yeni şifre oluştur</string>
+    <string name="new_password_body">Yeni şifren en az 8 karakter olmalı.</string>
+    <string name="new_password">Yeni şifre</string>
+    <string name="confirm_new_password">Yeni şifreyi doğrula</string>
+    <string name="reset_password">Şifreyi yenile</string>
+    <string name="password_reset_success">Şifre güncellendi</string>
+    <string name="password_reset_success_body">Şifren başarıyla değiştirildi. Şimdi giriş yapabilirsin.</string>
+    <string name="back_to_login">Giriş ekranına dön</string>
 </resources>

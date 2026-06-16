@@ -38,6 +38,7 @@ private object Routes {
     const val Onboarding = "onboarding"
     const val Login = "login"
     const val Register = "register"
+    const val ForgotPassword = "forgot_password"
     const val ProfileSetup = "profile_setup"
     const val Home = "home"
     const val Places = "places"
@@ -143,6 +144,22 @@ fun VibeOutApp(rootViewModel: AppRootViewModel = hiltViewModel()) {
                     LoginScreen(
                         onLoginSuccess = { navController.navigate(Routes.Home) { popUpTo(Routes.Login) { inclusive = true } } },
                         onRegister = { navController.navigate(Routes.Register) },
+                        onForgotPassword = {
+                            navController.navigate(Routes.ForgotPassword)
+                        },
+                    )
+                }
+                composable(Routes.ForgotPassword) {
+                    PasswordResetScreen(
+                        onBack = navController::popBackStack,
+                        onCompleted = {
+                            navController.navigate(Routes.Login) {
+                                popUpTo(Routes.ForgotPassword) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
+                        },
                     )
                 }
                 composable(Routes.Register) {
