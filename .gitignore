@@ -10,3 +10,5 @@
 *.jks
 *.keystore
 app/google-services.json
+**/build/
+*.apk

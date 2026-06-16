@@ -1,1 +1,0 @@
--keep,allowobfuscation,allowshrinking class com.vibeout.talaa.feature.notifications.NotificationsViewModel
