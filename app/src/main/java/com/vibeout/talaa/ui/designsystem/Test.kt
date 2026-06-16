@@ -1,3 +1,3 @@
 package com.vibeout.talaa.ui.designsystem
 
-val TestValue = 1
+object VibeSpacing
