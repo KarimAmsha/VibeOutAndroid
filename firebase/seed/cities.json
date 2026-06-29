@@ -1,13 +1,30 @@
 [
-  {
-    "id": "eskisehir",
-    "nameAr": "إسكي شهير",
-    "nameEn": "Eskisehir",
-    "nameTr": "Eskişehir",
-    "countryCode": "TR",
-    "timezone": "Europe/Istanbul",
-    "latitude": 39.7767,
-    "longitude": 30.5206,
-    "status": "ACTIVE"
-  }
+  { "id": "istanbul",     "nameAr": "إسطنبول",      "nameEn": "Istanbul",     "nameTr": "İstanbul",     "countryCode": "TR", "timezone": "Europe/Istanbul", "latitude": 41.0082, "longitude": 28.9784, "status": "ACTIVE" },
+  { "id": "ankara",       "nameAr": "أنقرة",         "nameEn": "Ankara",       "nameTr": "Ankara",       "countryCode": "TR", "timezone": "Europe/Istanbul", "latitude": 39.9334, "longitude": 32.8597, "status": "ACTIVE" },
+  { "id": "izmir",        "nameAr": "إزمير",         "nameEn": "Izmir",        "nameTr": "İzmir",        "countryCode": "TR", "timezone": "Europe/Istanbul", "latitude": 38.4237, "longitude": 27.1428, "status": "ACTIVE" },
+  { "id": "bursa",        "nameAr": "بورصة",         "nameEn": "Bursa",        "nameTr": "Bursa",        "countryCode": "TR", "timezone": "Europe/Istanbul", "latitude": 40.1826, "longitude": 29.0665, "status": "ACTIVE" },
+  { "id": "antalya",      "nameAr": "أنطاليا",       "nameEn": "Antalya",      "nameTr": "Antalya",      "countryCode": "TR", "timezone": "Europe/Istanbul", "latitude": 36.8969, "longitude": 30.7133, "status": "ACTIVE" },
+  { "id": "eskisehir",    "nameAr": "إسكي شهير",     "nameEn": "Eskisehir",    "nameTr": "Eskişehir",    "countryCode": "TR", "timezone": "Europe/Istanbul", "latitude": 39.7767, "longitude": 30.5206, "status": "ACTIVE" },
+  { "id": "gaziantep",    "nameAr": "غازي عنتاب",    "nameEn": "Gaziantep",    "nameTr": "Gaziantep",    "countryCode": "TR", "timezone": "Europe/Istanbul", "latitude": 37.0662, "longitude": 37.3833, "status": "ACTIVE" },
+  { "id": "konya",        "nameAr": "قونيا",         "nameEn": "Konya",        "nameTr": "Konya",        "countryCode": "TR", "timezone": "Europe/Istanbul", "latitude": 37.8714, "longitude": 32.4846, "status": "ACTIVE" },
+
+  { "id": "baghdad",      "nameAr": "بغداد",         "nameEn": "Baghdad",      "nameTr": "Bağdat",       "countryCode": "IQ", "timezone": "Asia/Baghdad",    "latitude": 33.3152, "longitude": 44.3661, "status": "ACTIVE" },
+  { "id": "erbil",        "nameAr": "أربيل",         "nameEn": "Erbil",        "nameTr": "Erbil",        "countryCode": "IQ", "timezone": "Asia/Baghdad",    "latitude": 36.1911, "longitude": 44.0094, "status": "ACTIVE" },
+  { "id": "basra",        "nameAr": "البصرة",        "nameEn": "Basra",        "nameTr": "Basra",        "countryCode": "IQ", "timezone": "Asia/Baghdad",    "latitude": 30.5085, "longitude": 47.7835, "status": "ACTIVE" },
+  { "id": "sulaymaniyah", "nameAr": "السليمانية",    "nameEn": "Sulaymaniyah", "nameTr": "Süleymaniye",  "countryCode": "IQ", "timezone": "Asia/Baghdad",    "latitude": 35.5613, "longitude": 45.4329, "status": "ACTIVE" },
+  { "id": "najaf",        "nameAr": "النجف",         "nameEn": "Najaf",        "nameTr": "Necef",        "countryCode": "IQ", "timezone": "Asia/Baghdad",    "latitude": 31.9960, "longitude": 44.3148, "status": "ACTIVE" },
+  { "id": "mosul",        "nameAr": "الموصل",        "nameEn": "Mosul",        "nameTr": "Musul",        "countryCode": "IQ", "timezone": "Asia/Baghdad",    "latitude": 36.3450, "longitude": 43.1450, "status": "ACTIVE" },
+
+  { "id": "damascus",     "nameAr": "دمشق",          "nameEn": "Damascus",     "nameTr": "Şam",          "countryCode": "SY", "timezone": "Asia/Damascus",   "latitude": 33.5138, "longitude": 36.2765, "status": "ACTIVE" },
+  { "id": "aleppo",       "nameAr": "حلب",           "nameEn": "Aleppo",       "nameTr": "Halep",        "countryCode": "SY", "timezone": "Asia/Damascus",   "latitude": 36.2021, "longitude": 37.1343, "status": "ACTIVE" },
+  { "id": "homs",         "nameAr": "حمص",           "nameEn": "Homs",         "nameTr": "Humus",        "countryCode": "SY", "timezone": "Asia/Damascus",   "latitude": 34.7308, "longitude": 36.7090, "status": "ACTIVE" },
+  { "id": "latakia",      "nameAr": "اللاذقية",      "nameEn": "Latakia",      "nameTr": "Lazkiye",      "countryCode": "SY", "timezone": "Asia/Damascus",   "latitude": 35.5196, "longitude": 35.7915, "status": "ACTIVE" },
+
+  { "id": "amman",        "nameAr": "عمّان",         "nameEn": "Amman",        "nameTr": "Amman",        "countryCode": "JO", "timezone": "Asia/Amman",      "latitude": 31.9454, "longitude": 35.9284, "status": "ACTIVE" },
+  { "id": "beirut",       "nameAr": "بيروت",         "nameEn": "Beirut",       "nameTr": "Beyrut",       "countryCode": "LB", "timezone": "Asia/Beirut",     "latitude": 33.8938, "longitude": 35.5018, "status": "ACTIVE" },
+  { "id": "cairo",        "nameAr": "القاهرة",       "nameEn": "Cairo",        "nameTr": "Kahire",       "countryCode": "EG", "timezone": "Africa/Cairo",    "latitude": 30.0444, "longitude": 31.2357, "status": "ACTIVE" },
+  { "id": "alexandria",   "nameAr": "الإسكندرية",    "nameEn": "Alexandria",   "nameTr": "İskenderiye",  "countryCode": "EG", "timezone": "Africa/Cairo",    "latitude": 31.2001, "longitude": 29.9187, "status": "ACTIVE" },
+  { "id": "riyadh",       "nameAr": "الرياض",        "nameEn": "Riyadh",       "nameTr": "Riyad",        "countryCode": "SA", "timezone": "Asia/Riyadh",     "latitude": 24.7136, "longitude": 46.6753, "status": "ACTIVE" },
+  { "id": "jeddah",       "nameAr": "جدة",           "nameEn": "Jeddah",       "nameTr": "Cidde",        "countryCode": "SA", "timezone": "Asia/Riyadh",     "latitude": 21.4858, "longitude": 39.1925, "status": "ACTIVE" },
+  { "id": "dubai",        "nameAr": "دبي",           "nameEn": "Dubai",        "nameTr": "Dubai",        "countryCode": "AE", "timezone": "Asia/Dubai",      "latitude": 25.2048, "longitude": 55.2708, "status": "ACTIVE" }
 ]
