@@ -1,0 +1,124 @@
+[
+  {
+    "id": "esk-quiet-coffee",
+    "name": "Sakin Kahve",
+    "description": "A calm specialty coffee corner, perfect for slow mornings and quiet talks.",
+    "cityId": "eskisehir",
+    "area": "Odunpazarı",
+    "address": "Odunpazarı, Eskişehir",
+    "latitude": 39.7651,
+    "longitude": 30.5267,
+    "type": "CAFE",
+    "priceLevel": "MEDIUM",
+    "moodTags": ["QUIET", "CAFE", "CALM", "STUDY"],
+    "amenities": { "wifi": true, "outdoorSeating": true },
+    "openingHours": { "everyday": "08:00-23:00" },
+    "ratingInternal": 4.6,
+    "safetyNote": "Central, well-lit and busy until late.",
+    "isPartner": false,
+    "photos": [
+      { "url": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085", "sortOrder": 0 }
+    ]
+  },
+  {
+    "id": "esk-study-loft",
+    "name": "Campus Study Loft",
+    "description": "Quiet study tables with strong wifi near the university.",
+    "cityId": "eskisehir",
+    "area": "Tepebaşı",
+    "address": "Tepebaşı, Eskişehir",
+    "latitude": 39.7836,
+    "longitude": 30.5092,
+    "type": "STUDY_PLACE",
+    "priceLevel": "LOW",
+    "moodTags": ["STUDY", "QUIET", "BUDGET"],
+    "amenities": { "wifi": true, "powerOutlets": true },
+    "openingHours": { "everyday": "09:00-22:00" },
+    "ratingInternal": 4.4,
+    "isPartner": false,
+    "photos": [
+      { "url": "https://images.unsplash.com/photo-1521587760476-6c12a4b040da", "sortOrder": 0 }
+    ]
+  },
+  {
+    "id": "esk-porsuk-walk",
+    "name": "Porsuk Riverside Walk",
+    "description": "A relaxing riverside walk with cafes and bridges along the way.",
+    "cityId": "eskisehir",
+    "area": "Porsuk",
+    "address": "Porsuk Çayı, Eskişehir",
+    "latitude": 39.7745,
+    "longitude": 30.5167,
+    "type": "WALKING_AREA",
+    "priceLevel": "LOW",
+    "moodTags": ["WALK", "PHOTOGRAPHY", "CALM", "BUDGET"],
+    "amenities": { "scenic": true },
+    "openingHours": { "everyday": "00:00-23:59" },
+    "ratingInternal": 4.7,
+    "safetyNote": "Public and lively in the evening.",
+    "isPartner": false,
+    "photos": [
+      { "url": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34", "sortOrder": 0 }
+    ]
+  },
+  {
+    "id": "esk-social-bistro",
+    "name": "Meydan Social Bistro",
+    "description": "Lively spot to meet new people over small plates.",
+    "cityId": "eskisehir",
+    "area": "Köprübaşı",
+    "address": "Köprübaşı, Eskişehir",
+    "latitude": 39.7762,
+    "longitude": 30.5201,
+    "type": "RESTAURANT",
+    "priceLevel": "MEDIUM",
+    "moodTags": ["SOCIAL", "FOOD", "NEW_EXPERIENCE"],
+    "amenities": { "groupSeating": true },
+    "openingHours": { "everyday": "11:00-00:00" },
+    "ratingInternal": 4.3,
+    "isPartner": false,
+    "photos": [
+      { "url": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4", "sortOrder": 0 }
+    ]
+  },
+  {
+    "id": "esk-dessert-house",
+    "name": "Tatlı Dessert House",
+    "description": "Cozy dessert house for a light, sweet evening.",
+    "cityId": "eskisehir",
+    "area": "Odunpazarı",
+    "address": "Odunpazarı, Eskişehir",
+    "latitude": 39.7669,
+    "longitude": 30.5288,
+    "type": "DESSERT",
+    "priceLevel": "MEDIUM",
+    "moodTags": ["FOOD", "SOCIAL", "ROMANTIC"],
+    "amenities": { "vegetarian": true },
+    "openingHours": { "everyday": "12:00-23:30" },
+    "ratingInternal": 4.5,
+    "isPartner": false,
+    "photos": [
+      { "url": "https://images.unsplash.com/photo-1488477181946-6428a0291777", "sortOrder": 0 }
+    ]
+  },
+  {
+    "id": "esk-photo-park",
+    "name": "Kentpark Photo Spot",
+    "description": "Green park with great light for photography and easy budget outings.",
+    "cityId": "eskisehir",
+    "area": "Kentpark",
+    "address": "Kentpark, Eskişehir",
+    "latitude": 39.7805,
+    "longitude": 30.4986,
+    "type": "PARK",
+    "priceLevel": "LOW",
+    "moodTags": ["PHOTOGRAPHY", "WALK", "BUDGET", "NEW_EXPERIENCE"],
+    "amenities": { "parking": true },
+    "openingHours": { "everyday": "07:00-22:00" },
+    "ratingInternal": 4.5,
+    "isPartner": false,
+    "photos": [
+      { "url": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e", "sortOrder": 0 }
+    ]
+  }
+]

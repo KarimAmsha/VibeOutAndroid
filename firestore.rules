@@ -1,0 +1,75 @@
+rules_version = '2';
+
+// VibeOut / طلعة — Cloud Firestore security rules.
+// Principle: require authentication everywhere; users own their private data;
+// catalog data (cities, places) is read-only from clients; sensitive profile
+// fields are never exposed to other users (public info is denormalized into
+// the documents that need it, e.g. vibe.creatorName).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isUser(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Catalog: readable by any signed-in user, writable only from the
+    // Firebase console / admin SDK (no client writes).
+    match /cities/{cityId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+    match /places/{placeId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // User profile — owner only. Other users never read the full profile
+    // (which holds email/phone); public fields are denormalized elsewhere.
+    match /users/{uid} {
+      allow read, write: if isUser(uid);
+
+      match /savedPlaces/{placeId} {
+        allow read, write: if isUser(uid);
+      }
+      match /notifications/{notifId} {
+        allow read, write: if isUser(uid);
+      }
+      match /blocks/{blockedUid} {
+        allow read, write: if isUser(uid);
+      }
+      match /aiPlans/{planId} {
+        allow read, write: if isUser(uid);
+      }
+    }
+
+    // Vibes (outings).
+    match /vibes/{vibeId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.creatorId == request.auth.uid;
+      allow update, delete: if signedIn() && resource.data.creatorId == request.auth.uid;
+
+      match /participants/{participantUid} {
+        allow read: if signedIn();
+        // A user manages their own participation; the vibe creator can manage all.
+        allow create, delete: if isUser(participantUid);
+        allow update: if isUser(participantUid)
+          || (signedIn() && get(/databases/$(database)/documents/vibes/$(vibeId)).data.creatorId == request.auth.uid);
+      }
+
+      match /messages/{messageId} {
+        allow read: if signedIn();
+        allow create: if signedIn() && request.resource.data.senderId == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+
+    // Reports: a signed-in user may file a report; clients cannot read them.
+    match /reports/{reportId} {
+      allow create: if signedIn() && request.resource.data.reporterId == request.auth.uid;
+      allow read, update, delete: if false;
+    }
+  }
+}

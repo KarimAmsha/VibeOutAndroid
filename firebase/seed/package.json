@@ -1,0 +1,13 @@
+{
+  "name": "vibeout-firestore-seed",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Seeds VibeOut/طلعة catalog data (cities, places) into Cloud Firestore.",
+  "type": "commonjs",
+  "scripts": {
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0"
+  }
+}

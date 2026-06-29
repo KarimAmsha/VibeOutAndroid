@@ -241,4 +241,6 @@
     <string name="interest_budget_plans">Ekonomik planlar</string>
     <string name="interest_new_people">Yeni insanlar</string>
     <string name="interest_calm_places">Sakin mekanlar</string>
+    <string name="reset_email_sent">E-postanı kontrol et</string>
+    <string name="reset_email_sent_body">Şifre sıfırlama bağlantısını e-postana gönderdik. Yeni şifre belirlemek için aç.</string>
 </resources>

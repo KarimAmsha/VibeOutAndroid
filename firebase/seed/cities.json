@@ -1,0 +1,13 @@
+[
+  {
+    "id": "eskisehir",
+    "nameAr": "إسكي شهير",
+    "nameEn": "Eskisehir",
+    "nameTr": "Eskişehir",
+    "countryCode": "TR",
+    "timezone": "Europe/Istanbul",
+    "latitude": 39.7767,
+    "longitude": 30.5206,
+    "status": "ACTIVE"
+  }
+]

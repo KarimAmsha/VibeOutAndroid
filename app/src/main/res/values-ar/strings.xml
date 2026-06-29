@@ -241,4 +241,6 @@
     <string name="interest_budget_plans">خطط اقتصادية</string>
     <string name="interest_new_people">ناس جدد</string>
     <string name="interest_calm_places">أماكن هادئة</string>
+    <string name="reset_email_sent">تفقّد بريدك</string>
+    <string name="reset_email_sent_body">أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك. افتحه لتعيين كلمة مرور جديدة.</string>
 </resources>
