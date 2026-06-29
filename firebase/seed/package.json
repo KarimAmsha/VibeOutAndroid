@@ -5,7 +5,8 @@
   "description": "Seeds VibeOut/طلعة catalog data (cities, places) into Cloud Firestore.",
   "type": "commonjs",
   "scripts": {
-    "seed": "node seed.js"
+    "seed": "node seed.js",
+    "import": "node import-osm.js"
   },
   "dependencies": {
     "firebase-admin": "^12.7.0"
