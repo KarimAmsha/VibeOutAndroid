@@ -34,7 +34,19 @@ if (!fs.existsSync(serviceAccountPath)) {
 admin.initializeApp({ credential: admin.credential.cert(require(serviceAccountPath)) });
 const db = admin.firestore();
 
-const OVERPASS = "https://overpass-api.de/api/interpreter";
+// Several public Overpass mirrors; tried in order until one answers. The
+// main instance rejects requests without a proper User-Agent (HTTP 406),
+// so a descriptive UA is mandatory.
+const ENDPOINTS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+];
+const REQUEST_HEADERS = {
+  "User-Agent": "VibeOutTalaa/1.0 (Firestore place importer; contact karim.amsha@gmail.com)",
+  Accept: "application/json",
+  "Content-Type": "application/x-www-form-urlencoded",
+};
 const RADIUS_M = Number(process.env.RADIUS_M || 6000);
 const PER_CITY = Number(process.env.PER_CITY || 40);
 const round = (n) => Math.round(n * 1e6) / 1e6;
@@ -123,14 +135,24 @@ function toPlace(el, city) {
   };
 }
 
+async function overpass(query) {
+  const body = "data=" + encodeURIComponent(query);
+  let lastErr;
+  for (const url of ENDPOINTS) {
+    try {
+      const res = await fetch(url, { method: "POST", headers: REQUEST_HEADERS, body });
+      if (res.ok) return await res.json();
+      lastErr = new Error(`HTTP ${res.status} from ${new URL(url).host}`);
+      if (res.status === 429 || res.status >= 500) await sleep(2000); // back off, then try next mirror
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error("All Overpass endpoints failed");
+}
+
 async function fetchCity(city) {
-  const res = await fetch(OVERPASS, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: "data=" + encodeURIComponent(buildQuery(city)),
-  });
-  if (!res.ok) throw new Error(`Overpass HTTP ${res.status}`);
-  const json = await res.json();
+  const json = await overpass(buildQuery(city));
   const seen = new Set();
   const places = [];
   for (const el of json.elements || []) {
