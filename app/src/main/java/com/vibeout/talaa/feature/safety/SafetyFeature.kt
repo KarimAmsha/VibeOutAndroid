@@ -3,6 +3,8 @@
 package com.vibeout.talaa.feature.safety
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -19,9 +21,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vibeout.talaa.R
+import com.vibeout.talaa.core.model.PublicUser
 import com.vibeout.talaa.core.model.ReportReason
 import com.vibeout.talaa.data.AppRepository
+import com.vibeout.talaa.ui.common.UiState
 import com.vibeout.talaa.ui.components.ChoiceChips
+import com.vibeout.talaa.ui.components.ConfirmDialog
 import com.vibeout.talaa.ui.designsystem.*
 import com.vibeout.talaa.ui.theme.BrandEnergy
 import com.vibeout.talaa.ui.theme.BrandMint
@@ -33,7 +38,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Composable
-fun SafetyCenterScreen(onBack: () -> Unit) {
+fun SafetyCenterScreen(
+    onBack: () -> Unit,
+    onBlockedUsers: () -> Unit = {},
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = { VibeTopBar(stringResource(R.string.safety_center), onBack) },
@@ -64,6 +72,14 @@ fun SafetyCenterScreen(onBack: () -> Unit) {
                 PremiumInfoRow(
                     icon = Icons.Default.Share,
                     title = stringResource(R.string.safety_tip_friend),
+                )
+
+                PremiumInfoRow(
+                    icon = Icons.Default.Block,
+                    title = stringResource(R.string.blocked_accounts),
+                    tint = BrandEnergy,
+                    onClick = onBlockedUsers,
+                    trailing = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
                 )
 
                 Surface(
@@ -185,6 +201,106 @@ fun ReportScreen(
                 )
             }
         }
+    }
+}
+
+data class BlockedUsersUiState(
+    val state: UiState<List<PublicUser>> = UiState.Loading,
+    val actionLoading: Boolean = false,
+)
+
+@HiltViewModel
+class BlockedUsersViewModel @Inject constructor(
+    private val repository: AppRepository,
+) : ViewModel() {
+    private val _state = MutableStateFlow(BlockedUsersUiState())
+    val state: StateFlow<BlockedUsersUiState> = _state.asStateFlow()
+
+    init { load() }
+
+    fun load() = viewModelScope.launch {
+        _state.value = _state.value.copy(state = UiState.Loading)
+        runCatching { repository.getBlocks() }
+            .onSuccess { _state.value = BlockedUsersUiState(UiState.Success(it)) }
+            .onFailure { _state.value = BlockedUsersUiState(UiState.Error(it.message ?: "")) }
+    }
+
+    fun unblock(userId: String) = viewModelScope.launch {
+        _state.value = _state.value.copy(actionLoading = true)
+        runCatching { repository.unblockUser(userId) }
+            .onSuccess { load() }
+            .onFailure { _state.value = _state.value.copy(actionLoading = false) }
+    }
+}
+
+@Composable
+fun BlockedUsersScreen(
+    onBack: () -> Unit,
+    viewModel: BlockedUsersViewModel = hiltViewModel(),
+) {
+    val state by viewModel.state.collectAsState()
+    var pendingUnblock by remember { mutableStateOf<PublicUser?>(null) }
+
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = { VibeTopBar(stringResource(R.string.blocked_accounts), onBack) },
+    ) { padding ->
+        when (val content = state.state) {
+            UiState.Loading, UiState.Idle -> PremiumLoadingState(Modifier.padding(padding))
+            is UiState.Error -> PremiumErrorState(
+                content.message,
+                stringResource(R.string.retry),
+                viewModel::load,
+                Modifier.padding(padding),
+            )
+            is UiState.Success -> {
+                if (content.data.isEmpty()) {
+                    PremiumEmptyState(
+                        title = stringResource(R.string.no_blocked_users),
+                        icon = Icons.Default.Block,
+                        modifier = Modifier.padding(padding),
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.padding(padding).fillMaxSize(),
+                        contentPadding = PaddingValues(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        items(content.data, key = { it.id }) { user ->
+                            PremiumInfoRow(
+                                icon = Icons.Default.Person,
+                                title = user.displayName.ifBlank { user.firstName },
+                                subtitle = user.city?.nameEn,
+                                tint = BrandEnergy,
+                                trailing = {
+                                    TextButton(
+                                        onClick = { pendingUnblock = user },
+                                        enabled = !state.actionLoading,
+                                    ) {
+                                        Text(
+                                            stringResource(R.string.unblock),
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                    }
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    pendingUnblock?.let { user ->
+        ConfirmDialog(
+            title = stringResource(R.string.unblock),
+            body = user.displayName.ifBlank { user.firstName },
+            onConfirm = {
+                viewModel.unblock(user.id)
+                pendingUnblock = null
+            },
+            onDismiss = { pendingUnblock = null },
+        )
     }
 }
 

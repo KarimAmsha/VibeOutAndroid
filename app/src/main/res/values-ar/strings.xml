@@ -219,4 +219,26 @@
     <string name="password_reset_success">تم تحديث كلمة المرور</string>
     <string name="password_reset_success_body">تم تغيير كلمة المرور بنجاح. يمكنك تسجيل الدخول الآن.</string>
     <string name="back_to_login">العودة لتسجيل الدخول</string>
+    <string name="delete_account_confirm">حذف حسابك؟</string>
+    <string name="delete_account_body">هذا يحذف ملفك وطلعاتك وأماكنك المحفوظة نهائيًا. لا يمكن التراجع.</string>
+    <string name="blocked_accounts">الحسابات المحظورة</string>
+    <string name="no_blocked_users">لم تحظر أحدًا بعد.</string>
+    <string name="unblock">إلغاء الحظر</string>
+    <string name="block_user_confirm">حظر هذا الشخص؟</string>
+    <string name="report_message">الإبلاغ عن الرسالة</string>
+    <string name="report_user">الإبلاغ عن المستخدم</string>
+    <string name="saved_places">الأماكن المحفوظة</string>
+    <string name="interests_hint">اختر بعض الأشياء التي تحبها.</string>
+    <string name="interest_coffee">قهوة</string>
+    <string name="interest_food">أكل</string>
+    <string name="interest_walking">مشي</string>
+    <string name="interest_study">دراسة</string>
+    <string name="interest_work">شغل</string>
+    <string name="interest_photography">تصوير</string>
+    <string name="interest_deep_talk">حديث عميق</string>
+    <string name="interest_board_games">ألعاب طاولة</string>
+    <string name="interest_outdoor">أنشطة خارجية</string>
+    <string name="interest_budget_plans">خطط اقتصادية</string>
+    <string name="interest_new_people">ناس جدد</string>
+    <string name="interest_calm_places">أماكن هادئة</string>
 </resources>

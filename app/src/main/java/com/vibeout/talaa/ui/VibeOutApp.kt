@@ -52,6 +52,7 @@ private object Routes {
     const val Profile = "profile"
     const val Settings = "settings"
     const val Safety = "safety"
+    const val BlockedUsers = "blocked_users"
     const val Plan = "plan/{planId}"
     const val Report = "report/{targetType}/{targetId}"
 }
@@ -241,7 +242,12 @@ fun VibeOutApp(rootViewModel: AppRootViewModel = hiltViewModel()) {
                     )
                 }
                 composable(Routes.Profile) {
-                    ProfileScreen(onSettings = { navController.navigate(Routes.Settings) }, onSafety = { navController.navigate(Routes.Safety) })
+                    ProfileScreen(
+                        onSettings = { navController.navigate(Routes.Settings) },
+                        onSafety = { navController.navigate(Routes.Safety) },
+                        onMyVibes = { navController.navigate(Routes.Vibes) },
+                        onSavedPlaces = { navController.navigate(Routes.Places) },
+                    )
                 }
                 composable(Routes.Settings) {
                     SettingsScreen(
@@ -249,7 +255,15 @@ fun VibeOutApp(rootViewModel: AppRootViewModel = hiltViewModel()) {
                         onLoggedOut = { navController.navigate(Routes.Login) { popUpTo(navController.graph.id) { inclusive = true } } },
                     )
                 }
-                composable(Routes.Safety) { SafetyCenterScreen(navController::popBackStack) }
+                composable(Routes.Safety) {
+                    SafetyCenterScreen(
+                        onBack = navController::popBackStack,
+                        onBlockedUsers = { navController.navigate(Routes.BlockedUsers) },
+                    )
+                }
+                composable(Routes.BlockedUsers) {
+                    BlockedUsersScreen(onBack = navController::popBackStack)
+                }
                 composable(
                     Routes.Report,
                     arguments = listOf(

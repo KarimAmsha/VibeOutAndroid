@@ -18,6 +18,7 @@ interface VibeOutApi {
     @GET("users/me") suspend fun getMe(): Response<ApiEnvelope<User>>
     @PUT("users/me") suspend fun updateMe(@Body body: UpdateUserRequest): Response<ApiEnvelope<User>>
     @GET("users/{id}/public") suspend fun getPublicUser(@Path("id") id: String): Response<ApiEnvelope<PublicUser>>
+    @DELETE("users/me") suspend fun deleteAccount(): Response<ApiEnvelope<Unit>>
     @GET("users/preferences") suspend fun getPreferences(): Response<ApiEnvelope<UserPreference>>
     @PUT("users/preferences") suspend fun updatePreferences(@Body body: UpdatePreferencesRequest): Response<ApiEnvelope<UserPreference>>
 

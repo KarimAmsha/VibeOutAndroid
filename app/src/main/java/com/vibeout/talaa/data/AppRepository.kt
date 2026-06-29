@@ -181,6 +181,22 @@ class AppRepository @Inject constructor(
         executor.execute<Unit> { api.blockUser(CreateBlockRequest(userId, reason)) }
     }
 
+    suspend fun getBlocks(): List<PublicUser> = executor.execute { api.getBlocks() }
+
+    suspend fun unblockUser(userId: String) {
+        executor.execute<Unit> { api.unblockUser(userId) }
+    }
+
+    suspend fun getPreferences(): UserPreference = executor.execute { api.getPreferences() }
+
+    suspend fun deleteAccount() {
+        executor.execute<Unit> { api.deleteAccount() }
+        tokenStore.clear()
+        savedPlaceDao.clear()
+        cityDao.clear()
+        _currentUser.value = null
+    }
+
     private fun City.toEntity() = CityEntity(id, nameAr, nameEn, nameTr, countryCode, timezone, latitude, longitude, status)
     private fun CityEntity.toModel() = City(id, nameAr, nameEn, nameTr, countryCode, timezone, latitude, longitude, status)
 }

@@ -59,6 +59,9 @@ class ProfileViewModel @Inject constructor(
     val state: StateFlow<UiState<User>> = _state.asStateFlow()
     val theme = appPreferences.themeMode
 
+    private val _accountAction = MutableStateFlow(AccountActionState())
+    val accountAction: StateFlow<AccountActionState> = _accountAction.asStateFlow()
+
     init { load() }
 
     fun load() = viewModelScope.launch {
@@ -89,16 +92,36 @@ class ProfileViewModel @Inject constructor(
         repository.logout()
         onDone()
     }
+
+    fun deleteAccount(onDone: () -> Unit) = viewModelScope.launch {
+        _accountAction.value = AccountActionState(deleting = true)
+        runCatching { repository.deleteAccount() }
+            .onSuccess {
+                _accountAction.value = AccountActionState()
+                onDone()
+            }
+            .onFailure {
+                _accountAction.value = AccountActionState(error = it.message)
+            }
+    }
 }
+
+data class AccountActionState(
+    val deleting: Boolean = false,
+    val error: String? = null,
+)
 
 @Composable
 fun ProfileScreen(
     onSettings: () -> Unit,
     onSafety: () -> Unit,
+    onMyVibes: () -> Unit = {},
+    onSavedPlaces: () -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
     val currentLocale = LocalConfiguration.current.locales[0]
+    val interestLabels = ProfileInterestCatalog.associate { it.first to stringResource(it.second) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -185,6 +208,36 @@ fun ProfileScreen(
                             modifier = Modifier.fillMaxWidth(),
                         )
 
+                        user.interests
+                            .mapNotNull { interestLabels[it] }
+                            .takeIf { it.isNotEmpty() }
+                            ?.let { labels ->
+                                PremiumInfoRow(
+                                    icon = Icons.Default.Interests,
+                                    title = stringResource(R.string.interests),
+                                    subtitle = labels.joinToString(" • "),
+                                    tint = BrandMint,
+                                )
+                            }
+
+                        PremiumSectionTitle(stringResource(R.string.app_name))
+
+                        PremiumInfoRow(
+                            icon = Icons.Default.Groups,
+                            title = stringResource(R.string.my_vibes),
+                            tint = BrandEnergy,
+                            onClick = onMyVibes,
+                            trailing = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
+                        )
+
+                        PremiumInfoRow(
+                            icon = Icons.Default.Bookmark,
+                            title = stringResource(R.string.saved_places),
+                            tint = BrandMint,
+                            onClick = onSavedPlaces,
+                            trailing = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
+                        )
+
                         PremiumInfoRow(
                             icon = Icons.Default.HealthAndSafety,
                             title = stringResource(R.string.safety_center),
@@ -260,7 +313,9 @@ fun SettingsScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val theme by viewModel.theme.collectAsState(initial = ThemeMode.SYSTEM)
+    val accountAction by viewModel.accountAction.collectAsState()
     var showLogout by remember { mutableStateOf(false) }
+    var showDelete by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -330,28 +385,52 @@ fun SettingsScreen(
                 }
 
                 Spacer(Modifier.height(8.dp))
-                Card(
-                    modifier = Modifier.fillMaxWidth().clickable { showLogout = true },
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.24f)),
-                    elevation = CardDefaults.cardElevation(0.dp),
-                ) {
-                    Row(
-                        Modifier.fillMaxWidth().padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+                PremiumSectionTitle(stringResource(R.string.account_status))
+
+                PremiumInfoRow(
+                    icon = Icons.AutoMirrored.Filled.Logout,
+                    title = stringResource(R.string.logout),
+                    tint = BrandEnergy,
+                    onClick = { showLogout = true },
+                    trailing = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
+                )
+
+                PremiumInfoRow(
+                    icon = Icons.Default.DeleteForever,
+                    title = stringResource(R.string.delete_account),
+                    subtitle = stringResource(R.string.delete_account_body),
+                    tint = MaterialTheme.colorScheme.error,
+                    onClick = { showDelete = true },
+                    trailing = {
+                        if (accountAction.deleting) {
+                            CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                        } else {
+                            Icon(Icons.Default.ChevronRight, contentDescription = null)
+                        }
+                    },
+                )
+
+                accountAction.error?.let { error ->
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.errorContainer,
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null, tint = MaterialTheme.colorScheme.error)
-                        Spacer(Modifier.width(12.dp))
                         Text(
-                            stringResource(R.string.logout),
-                            color = MaterialTheme.colorScheme.error,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.weight(1f),
+                            error,
+                            modifier = Modifier.fillMaxWidth().padding(14.dp),
+                            color = MaterialTheme.colorScheme.onErrorContainer,
                         )
-                        Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.error)
                     }
                 }
+
+                Spacer(Modifier.height(8.dp))
+                PremiumSectionTitle(stringResource(R.string.about))
+                PremiumInfoRow(
+                    icon = Icons.Default.Info,
+                    title = stringResource(R.string.app_name),
+                    subtitle = "${stringResource(R.string.version)} ${com.vibeout.talaa.BuildConfig.VERSION_NAME}",
+                    tint = BrandMint,
+                )
                 Spacer(Modifier.height(20.dp))
             }
         }
@@ -366,6 +445,20 @@ fun SettingsScreen(
                 viewModel.logout(onLoggedOut)
             },
             onDismiss = { showLogout = false },
+        )
+    }
+
+    if (showDelete) {
+        ConfirmDialog(
+            title = stringResource(R.string.delete_account_confirm),
+            body = stringResource(R.string.delete_account_body),
+            confirmLabel = stringResource(R.string.delete_account),
+            destructive = true,
+            onConfirm = {
+                showDelete = false
+                viewModel.deleteAccount(onLoggedOut)
+            },
+            onDismiss = { showDelete = false },
         )
     }
 }
