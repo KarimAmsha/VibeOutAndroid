@@ -15,14 +15,15 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
-    // Catalog: readable by any signed-in user, writable only from the
-    // Firebase console / admin SDK (no client writes).
+    // Public catalog (no user data). Readable by everyone because the
+    // registration screen needs the city list before the user signs in.
+    // Writable only from the Firebase console / admin SDK (no client writes).
     match /cities/{cityId} {
-      allow read: if signedIn();
+      allow read: if true;
       allow write: if false;
     }
     match /places/{placeId} {
-      allow read: if signedIn();
+      allow read: if true;
       allow write: if false;
     }
 
