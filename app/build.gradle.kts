@@ -46,7 +46,8 @@ android {
     buildTypes {
         debug {
             isMinifyEnabled = false
-            applicationIdSuffix = ".debug"
+            // No applicationId suffix so a single google-services.json
+            // (registered for com.vibeout.talaa) works for debug and release.
             versionNameSuffix = "-debug"
         }
         release {
