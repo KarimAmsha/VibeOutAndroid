@@ -74,8 +74,10 @@ class PasswordResetViewModel @Inject constructor(
             runCatching {
                 repository.forgotPassword(email, locale)
             }.onSuccess { response ->
+                // Firebase sends a secure reset link by email, so we confirm
+                // immediately instead of collecting an in-app code.
                 _state.value = _state.value.copy(
-                    step = PasswordResetStep.CODE,
+                    step = PasswordResetStep.SUCCESS,
                     loading = false,
                     message = response.message,
                     error = null,
@@ -215,7 +217,7 @@ fun PasswordResetScreen(
                         PasswordResetStep.NEW_PASSWORD ->
                             stringResource(R.string.create_new_password)
                         PasswordResetStep.SUCCESS ->
-                            stringResource(R.string.password_reset_success)
+                            stringResource(R.string.reset_email_sent)
                     },
                     body = when (state.step) {
                         PasswordResetStep.EMAIL ->
@@ -228,7 +230,7 @@ fun PasswordResetScreen(
                         PasswordResetStep.NEW_PASSWORD ->
                             stringResource(R.string.new_password_body)
                         PasswordResetStep.SUCCESS ->
-                            stringResource(R.string.password_reset_success_body)
+                            stringResource(R.string.reset_email_sent_body)
                     },
                     icon = heroIcon,
                 )

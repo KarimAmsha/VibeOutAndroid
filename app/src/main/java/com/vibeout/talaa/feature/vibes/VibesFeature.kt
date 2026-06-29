@@ -4,6 +4,7 @@ package com.vibeout.talaa.feature.vibes
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -34,6 +35,7 @@ import com.vibeout.talaa.data.AppRepository
 import com.vibeout.talaa.feature.home.moodLabel
 import com.vibeout.talaa.ui.common.UiState
 import com.vibeout.talaa.ui.components.ChoiceChips
+import com.vibeout.talaa.ui.components.ConfirmDialog
 import com.vibeout.talaa.ui.designsystem.*
 import com.vibeout.talaa.ui.theme.BrandEnergy
 import com.vibeout.talaa.ui.theme.BrandMint
@@ -453,8 +455,11 @@ fun VibeDetailsScreen(
     viewModel: VibeDetailsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
     var joinDialog by remember { mutableStateOf(false) }
     var joinMessage by remember { mutableStateOf("") }
+    val sharedFrom = stringResource(R.string.shared_from_vibeout)
+    val shareLabel = stringResource(R.string.share_vibe)
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -463,6 +468,23 @@ fun VibeDetailsScreen(
                 title = stringResource(R.string.vibes),
                 onBack = onBack,
                 actions = {
+                    IconButton(onClick = {
+                        val vibe = (state.state as? UiState.Success)?.data
+                        if (vibe != null) {
+                            val details = listOfNotNull(
+                                vibe.title,
+                                formatServerDate(vibe.startTime),
+                                vibe.place?.name ?: vibe.meetingArea,
+                            ).joinToString("\n")
+                            val send = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, "$details\n\n$sharedFrom")
+                            }
+                            context.startActivity(Intent.createChooser(send, shareLabel))
+                        }
+                    }) {
+                        Icon(Icons.Default.Share, shareLabel)
+                    }
                     IconButton(onClick = {
                         val vibe = (state.state as? UiState.Success)?.data
                         if (vibe != null) onReport("VIBE", vibe.id)
@@ -706,6 +728,12 @@ class ChatViewModel @Inject constructor(
                 _state.value = _state.value.copy(sending = false, error = it.message)
             }
     }
+
+    fun block(userId: String) = viewModelScope.launch {
+        runCatching { repository.blockUser(userId) }
+            .onSuccess { load(true) }
+            .onFailure { _state.value = _state.value.copy(error = it.message) }
+    }
 }
 
 @Composable
@@ -716,6 +744,8 @@ fun ChatScreen(
 ) {
     val state by viewModel.state.collectAsState()
     var text by rememberSaveable { mutableStateOf("") }
+    var menuForMessageId by remember { mutableStateOf<String?>(null) }
+    var blockTarget by remember { mutableStateOf<Pair<String, String>?>(null) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -816,15 +846,47 @@ fun ChatScreen(
                                                 style = MaterialTheme.typography.labelSmall,
                                             )
                                             if (!mine) {
-                                                IconButton(
-                                                    onClick = { onReport("MESSAGE", message.id) },
-                                                    modifier = Modifier.size(28.dp),
-                                                ) {
-                                                    Icon(
-                                                        Icons.Default.Flag,
-                                                        contentDescription = null,
-                                                        modifier = Modifier.size(15.dp),
-                                                    )
+                                                Box {
+                                                    IconButton(
+                                                        onClick = { menuForMessageId = message.id },
+                                                        modifier = Modifier.size(28.dp),
+                                                    ) {
+                                                        Icon(
+                                                            Icons.Default.MoreVert,
+                                                            contentDescription = stringResource(R.string.report),
+                                                            modifier = Modifier.size(15.dp),
+                                                        )
+                                                    }
+                                                    DropdownMenu(
+                                                        expanded = menuForMessageId == message.id,
+                                                        onDismissRequest = { menuForMessageId = null },
+                                                    ) {
+                                                        DropdownMenuItem(
+                                                            text = { Text(stringResource(R.string.report_message)) },
+                                                            leadingIcon = { Icon(Icons.Default.Flag, contentDescription = null) },
+                                                            onClick = {
+                                                                menuForMessageId = null
+                                                                onReport("MESSAGE", message.id)
+                                                            },
+                                                        )
+                                                        DropdownMenuItem(
+                                                            text = { Text(stringResource(R.string.report_user)) },
+                                                            leadingIcon = { Icon(Icons.Default.PersonOff, contentDescription = null) },
+                                                            onClick = {
+                                                                menuForMessageId = null
+                                                                onReport("USER", message.senderId)
+                                                            },
+                                                        )
+                                                        DropdownMenuItem(
+                                                            text = { Text(stringResource(R.string.block_user)) },
+                                                            leadingIcon = { Icon(Icons.Default.Block, contentDescription = null) },
+                                                            onClick = {
+                                                                menuForMessageId = null
+                                                                blockTarget = message.senderId to
+                                                                    (message.sender?.displayName ?: message.senderId)
+                                                            },
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }
@@ -836,6 +898,20 @@ fun ChatScreen(
                 }
             }
         }
+    }
+
+    blockTarget?.let { (userId, name) ->
+        ConfirmDialog(
+            title = stringResource(R.string.block_user_confirm),
+            body = name,
+            confirmLabel = stringResource(R.string.block_user),
+            destructive = true,
+            onConfirm = {
+                viewModel.block(userId)
+                blockTarget = null
+            },
+            onDismiss = { blockTarget = null },
+        )
     }
 }
 

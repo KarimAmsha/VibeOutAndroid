@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "935213194616",
+    "project_id": "vibeout-6982d",
+    "storage_bucket": "vibeout-6982d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:935213194616:android:e0e6fa80a8a8bb5c97fc8d",
+        "android_client_info": {
+          "package_name": "com.vibeout.talaa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOIAyObpgdzirmFVCKwypNQ-amh_BgTDA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

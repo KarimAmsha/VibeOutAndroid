@@ -23,8 +23,10 @@ import com.vibeout.talaa.R
 import com.vibeout.talaa.core.model.PrivacyLevel
 import com.vibeout.talaa.core.model.SocialPreference
 import com.vibeout.talaa.core.network.dto.UpdatePreferencesRequest
+import com.vibeout.talaa.core.network.dto.UpdateUserRequest
 import com.vibeout.talaa.data.AppRepository
 import com.vibeout.talaa.ui.components.ChoiceChips
+import com.vibeout.talaa.ui.components.MultiChoiceChips
 import com.vibeout.talaa.ui.designsystem.*
 import com.vibeout.talaa.ui.theme.BrandEnergy
 import com.vibeout.talaa.ui.theme.BrandMint
@@ -41,6 +43,21 @@ data class ProfileSetupUiState(
     val error: String? = null,
 )
 
+val ProfileInterestCatalog: List<Pair<String, Int>> = listOf(
+    "COFFEE" to R.string.interest_coffee,
+    "FOOD" to R.string.interest_food,
+    "WALKING" to R.string.interest_walking,
+    "STUDY" to R.string.interest_study,
+    "WORK" to R.string.interest_work,
+    "PHOTOGRAPHY" to R.string.interest_photography,
+    "DEEP_TALK" to R.string.interest_deep_talk,
+    "BOARD_GAMES" to R.string.interest_board_games,
+    "OUTDOOR" to R.string.interest_outdoor,
+    "BUDGET_PLANS" to R.string.interest_budget_plans,
+    "NEW_PEOPLE" to R.string.interest_new_people,
+    "CALM_PLACES" to R.string.interest_calm_places,
+)
+
 @HiltViewModel
 class ProfileSetupViewModel @Inject constructor(
     private val repository: AppRepository,
@@ -54,10 +71,14 @@ class ProfileSetupViewModel @Inject constructor(
         notifications: Boolean,
         location: Boolean,
         newPeople: Boolean,
+        interests: List<String>,
     ) = viewModelScope.launch {
         _state.value = ProfileSetupUiState(loading = true)
 
         runCatching {
+            if (interests.isNotEmpty()) {
+                repository.updateMe(UpdateUserRequest(interests = interests))
+            }
             repository.updatePreferences(
                 UpdatePreferencesRequest(
                     preferredMoods = emptyList(),
@@ -89,6 +110,7 @@ fun ProfileSetupScreen(
     var notifications by remember { mutableStateOf(true) }
     var location by remember { mutableStateOf(true) }
     var newPeople by remember { mutableStateOf(true) }
+    var interests by remember { mutableStateOf(emptySet<String>()) }
 
     LaunchedEffect(state.done) {
         if (state.done) onDone()
@@ -117,6 +139,23 @@ fun ProfileSetupScreen(
                         title = stringResource(R.string.profile_setup_title),
                         body = stringResource(R.string.profile_setup_body),
                         icon = Icons.Default.Tune,
+                    )
+                }
+
+                item {
+                    PremiumSectionTitle(stringResource(R.string.interests))
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        stringResource(R.string.interests_hint),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    MultiChoiceChips(
+                        values = ProfileInterestCatalog.map { it.first to stringResource(it.second) },
+                        selected = interests,
+                        onToggle = { value ->
+                            interests = if (value in interests) interests - value else interests + value
+                        },
                     )
                 }
 
@@ -215,6 +254,7 @@ fun ProfileSetupScreen(
                                 notifications = notifications,
                                 location = location,
                                 newPeople = newPeople,
+                                interests = interests.toList(),
                             )
                         },
                         loading = state.loading,

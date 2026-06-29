@@ -1,29 +1,8 @@
 package com.vibeout.talaa.core.network.dto
 
-import com.google.gson.JsonElement
-import com.vibeout.talaa.core.model.*
-
-data class ApiEnvelope<T>(
-    val success: Boolean = false,
-    val message: String = "",
-    val data: T? = null,
-    val pagination: PaginationDto? = null,
-    val error: ApiErrorDto? = null,
-)
-
-data class ApiErrorDto(
-    val code: String? = null,
-    val details: JsonElement? = null,
-)
-
-data class PaginationDto(
-    val page: Int = 1,
-    val limit: Int = 20,
-    val totalItems: Int = 0,
-    val totalPages: Int = 0,
-    val hasNextPage: Boolean = false,
-    val hasPreviousPage: Boolean = false,
-)
+// Plain request/response models shared between the UI layer and the data
+// layer. They are transport-agnostic: the data layer now maps them to and
+// from Cloud Firestore documents.
 
 data class LoginRequest(val email: String, val password: String)
 
@@ -37,14 +16,6 @@ data class RegisterRequest(
     val cityId: String,
     val languages: List<String>,
     val interests: List<String>,
-)
-
-data class RefreshRequest(val refreshToken: String)
-
-data class AuthDataDto(
-    val user: User,
-    val accessToken: String,
-    val refreshToken: String,
 )
 
 data class UpdateUserRequest(
@@ -139,4 +110,3 @@ data class ResetPasswordRequest(
 data class PasswordResetMessage(
     val message: String,
 )
-

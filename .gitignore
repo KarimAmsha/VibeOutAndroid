@@ -12,3 +12,8 @@
 app/google-services.json
 **/build/
 *.apk
+
+# Firebase admin/seed secrets and tooling
+firebase/seed/serviceAccount.json
+firebase/seed/node_modules/
+.firebase/

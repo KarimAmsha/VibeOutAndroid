@@ -8,6 +8,13 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+// The Google Services plugin is applied only when a real google-services.json
+// is present. This keeps the project building in CI (and for contributors who
+// have not added their Firebase config yet) while enabling Firebase locally.
+if (rootProject.file("app/google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 val localProperties = Properties().apply {
     val localFile = rootProject.file("local.properties")
     if (localFile.exists()) localFile.inputStream().use(::load)
@@ -39,7 +46,8 @@ android {
     buildTypes {
         debug {
             isMinifyEnabled = false
-            applicationIdSuffix = ".debug"
+            // No applicationId suffix so a single google-services.json
+            // (registered for com.vibeout.talaa) works for debug and release.
             versionNameSuffix = "-debug"
         }
         release {
@@ -94,11 +102,13 @@ dependencies {
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    implementation(libs.retrofit.core)
-    implementation(libs.retrofit.gson)
-    implementation(libs.okhttp.core)
-    implementation(libs.okhttp.logging)
-    implementation(libs.gson)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.storage)
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.analytics)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.room.runtime)
@@ -109,7 +119,6 @@ dependencies {
     implementation(libs.maps.compose)
     implementation(libs.play.services.maps)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.androidx.security.crypto)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
