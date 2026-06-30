@@ -18,6 +18,7 @@
     <string name="phone">Phone</string>
     <string name="birth_year">Birth year</string>
     <string name="city">City</string>
+    <string name="meeting_area">Meeting area / neighbourhood</string>
     <string name="languages">Languages</string>
     <string name="interests">Interests</string>
     <string name="create_account">Create account</string>

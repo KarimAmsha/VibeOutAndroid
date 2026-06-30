@@ -59,6 +59,5 @@ app/build/outputs/bundle/release/app-release.aab
 - **سياسة خصوصية إجبارية** (لأنك تجمع إيميل + بيانات Firebase).
 - **نموذج Data safety**: صرّح بجمع البريد والاسم والموقع التقريبي.
 - **قيّد مفاتيح الـ API** (Firebase + Google Maps) من Google Cloud Console.
-- زوّد **مفتاح Google Maps** في `local.properties` لتعمل الخريطة:
-  `GOOGLE_MAPS_API_KEY=مفتاحك`
+- الخريطة مجانية (OpenStreetMap/osmdroid) — لا تحتاج مفتاح Google Maps ولا فوترة.
 - بعد كل تحديث، زِد `versionCode` و `versionName` في `app/build.gradle.kts`.

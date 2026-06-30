@@ -71,4 +71,4 @@ npm run import istanbul baghdad   # مدن محددة فقط
 - خطط الذكاء الاصطناعي حالياً تُحسب **داخل التطبيق** من أماكن Firestore الحقيقية
   (بدون تكلفة خارجية). يمكن لاحقاً ترقيتها إلى OpenAI عبر Cloud Functions.
 - استعادة كلمة المرور تتم عبر **رابط يُرسل بالبريد** من Firebase.
-- الخريطة تحتاج مفتاح Google Maps في `local.properties` (`GOOGLE_MAPS_API_KEY`).
+- الخريطة تستخدم **OpenStreetMap (osmdroid)** — مجانية تماماً بدون أي مفتاح أو فوترة.

@@ -138,8 +138,7 @@ dependencies {
     kapt(libs.androidx.room.compiler)
 
     implementation(libs.coil.compose)
-    implementation(libs.maps.compose)
-    implementation(libs.play.services.maps)
+    implementation(libs.osmdroid)
     implementation(libs.kotlinx.coroutines.android)
 
     testImplementation(libs.junit)

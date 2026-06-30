@@ -18,6 +18,7 @@
     <string name="phone">Telefon</string>
     <string name="birth_year">Doğum yılı</string>
     <string name="city">Şehir</string>
+    <string name="meeting_area">Buluşma alanı / mahalle</string>
     <string name="languages">Diller</string>
     <string name="interests">İlgi alanları</string>
     <string name="create_account">Hesap oluştur</string>

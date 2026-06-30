@@ -112,9 +112,8 @@ fun VibeOutApp(rootViewModel: AppRootViewModel = hiltViewModel()) {
                                     Text(
                                         stringResource(label),
                                         maxLines = 1,
-                                        softWrap = false,
                                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                                        style = MaterialTheme.typography.labelMedium,
+                                        style = MaterialTheme.typography.labelSmall,
                                     )
                                 },
                             )

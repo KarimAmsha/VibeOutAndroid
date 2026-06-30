@@ -20,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -34,6 +35,7 @@ import com.vibeout.talaa.core.network.dto.CreateVibeRequest
 import com.vibeout.talaa.data.AppRepository
 import com.vibeout.talaa.feature.home.moodLabel
 import com.vibeout.talaa.ui.common.UiState
+import com.vibeout.talaa.ui.common.localizedName
 import com.vibeout.talaa.ui.components.ChoiceChips
 import com.vibeout.talaa.ui.components.ConfirmDialog
 import com.vibeout.talaa.ui.designsystem.*
@@ -199,7 +201,8 @@ class CreateVibeViewModel @Inject constructor(
     private val repository: AppRepository,
 ) : ViewModel() {
     val initialPlaceId: String? = savedStateHandle["placeId"]
-    val cityId: String? = repository.currentUser.value?.city?.id
+    val city: City? = repository.currentUser.value?.city
+    val cityId: String? = city?.id
     private val _state = MutableStateFlow(CreateVibeUiState())
     val state: StateFlow<CreateVibeUiState> = _state.asStateFlow()
 
@@ -279,10 +282,20 @@ fun CreateVibeScreen(
                     )
                 }
                 item {
+                    // The outing's city is automatically your current city.
+                    PremiumInfoRow(
+                        icon = Icons.Default.LocationCity,
+                        title = viewModel.city?.localizedName(LocalConfiguration.current.locales[0])
+                            ?: stringResource(R.string.city),
+                        subtitle = stringResource(R.string.city),
+                        tint = BrandMint,
+                    )
+                }
+                item {
                     VibeTextField(
                         meetingArea,
                         { meetingArea = it },
-                        stringResource(R.string.city),
+                        stringResource(R.string.meeting_area),
                         Modifier.fillMaxWidth(),
                         Icons.Default.LocationOn,
                     )

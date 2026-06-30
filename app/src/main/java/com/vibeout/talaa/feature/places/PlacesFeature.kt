@@ -27,9 +27,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.*
+import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 import com.vibeout.talaa.R
 import com.vibeout.talaa.core.model.Place
 import com.vibeout.talaa.data.AppRepository
@@ -425,35 +429,62 @@ fun PlacesMapScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val places = (state.state as? UiState.Success)?.data.orEmpty()
-    val first = places.firstOrNull()
-    val cameraPositionState = rememberCameraPositionState {
-        position = com.google.android.gms.maps.model.CameraPosition.fromLatLngZoom(
-            first?.let { LatLng(it.latitude, it.longitude) } ?: LatLng(39.7667, 30.5256),
-            12f,
-        )
+    val context = LocalContext.current
+
+    // Free OpenStreetMap tiles via osmdroid — no API key, no billing.
+    val mapView = remember {
+        Configuration.getInstance().apply {
+            userAgentValue = context.packageName
+            // Keep the tile cache in app-internal storage (no storage permission
+            // needed on API 29+).
+            osmdroidBasePath = context.cacheDir
+            osmdroidTileCache = java.io.File(context.cacheDir, "osmdroid-tiles")
+        }
+        MapView(context).apply {
+            setTileSource(TileSourceFactory.MAPNIK)
+            setMultiTouchControls(true)
+            controller.setZoom(12.0)
+            controller.setCenter(GeoPoint(39.7667, 30.5256))
+        }
+    }
+    val centered = remember { mutableStateOf(false) }
+    DisposableEffect(Unit) {
+        mapView.onResume()
+        onDispose {
+            mapView.onPause()
+            mapView.onDetach()
+        }
     }
 
     Scaffold(
         topBar = { VibeTopBar(stringResource(R.string.map), onBack) },
     ) { padding ->
         Box(Modifier.padding(padding).fillMaxSize()) {
-            GoogleMap(
+            AndroidView(
                 modifier = Modifier.fillMaxSize(),
-                cameraPositionState = cameraPositionState,
-            ) {
-                places.filter { it.latitude != 0.0 || it.longitude != 0.0 }.forEach { place ->
-                    Marker(
-                        state = remember(place.id, place.latitude, place.longitude) {
-                            MarkerState(
-                                LatLng(place.latitude, place.longitude)
-                            )
-                        },
-                        title = place.name,
-                        snippet = place.area,
-                        onInfoWindowClick = { onOpenPlace(place.id) },
-                    )
-                }
-            }
+                factory = { mapView },
+                update = { map ->
+                    map.overlays.clear()
+                    val located = places.filter { it.latitude != 0.0 || it.longitude != 0.0 }
+                    located.forEach { place ->
+                        val marker = Marker(map).apply {
+                            position = GeoPoint(place.latitude, place.longitude)
+                            title = place.name
+                            snippet = place.area
+                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                            setOnMarkerClickListener { _, _ -> onOpenPlace(place.id); true }
+                        }
+                        map.overlays.add(marker)
+                    }
+                    if (!centered.value) {
+                        located.firstOrNull()?.let {
+                            map.controller.setCenter(GeoPoint(it.latitude, it.longitude))
+                            centered.value = true
+                        }
+                    }
+                    map.invalidate()
+                },
+            )
             if (state.state is UiState.Loading) {
                 PremiumLoadingState(Modifier.fillMaxSize())
             } else {

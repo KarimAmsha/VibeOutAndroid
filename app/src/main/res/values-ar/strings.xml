@@ -18,6 +18,7 @@
     <string name="phone">رقم الهاتف</string>
     <string name="birth_year">سنة الميلاد</string>
     <string name="city">المدينة</string>
+    <string name="meeting_area">منطقة اللقاء / الحي</string>
     <string name="languages">اللغات</string>
     <string name="interests">الاهتمامات</string>
     <string name="create_account">إنشاء الحساب</string>
