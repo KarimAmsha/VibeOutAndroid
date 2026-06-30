@@ -146,7 +146,8 @@ class AuthViewModel @Inject constructor(private val repository: AppRepository) :
         if (_state.value.cities.isNotEmpty()) return
         viewModelScope.launch {
             _state.value = _state.value.copy(citiesLoading = true, error = null)
-            runCatching { repository.getCities() }
+            // Force a fresh fetch so registration always shows the full city list.
+            runCatching { repository.getCities(force = true) }
                 .onSuccess { _state.value = _state.value.copy(citiesLoading = false, cities = it) }
                 .onFailure { _state.value = _state.value.copy(citiesLoading = false, error = it.message) }
         }

@@ -70,8 +70,11 @@ class ProfileViewModel @Inject constructor(
     init { load() }
 
     fun loadCities() = viewModelScope.launch {
-        if (_cities.value.isNotEmpty()) return@launch
-        runCatching { repository.getCities() }.onSuccess { _cities.value = it }
+        // Force a fresh fetch so the full, up-to-date city list is shown even
+        // if an older (smaller) list was cached on a previous run.
+        runCatching { repository.getCities(force = true) }
+            .onSuccess { _cities.value = it }
+            .onFailure { if (_cities.value.isEmpty()) runCatching { repository.getCities() }.onSuccess { _cities.value = it } }
     }
 
     fun changeCity(cityId: String) = viewModelScope.launch {
