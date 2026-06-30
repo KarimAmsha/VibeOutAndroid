@@ -98,6 +98,7 @@ function samplePlacesFor(city) {
     ratingInternal: t.rating,
     isPartner: false,
     photos: [{ url: t.photo, sortOrder: 0 }],
+    source: "sample",
   }));
 }
 

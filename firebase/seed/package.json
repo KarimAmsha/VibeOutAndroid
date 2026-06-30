@@ -6,7 +6,8 @@
   "type": "commonjs",
   "scripts": {
     "seed": "node seed.js",
-    "import": "node import-osm.js"
+    "import": "node import-osm.js",
+    "clean-samples": "node delete-samples.js"
   },
   "dependencies": {
     "firebase-admin": "^12.7.0"
