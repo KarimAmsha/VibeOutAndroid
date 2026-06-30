@@ -36,6 +36,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import com.vibeout.talaa.R
 import com.vibeout.talaa.core.model.Place
+import com.vibeout.talaa.core.model.PlaceType
 import com.vibeout.talaa.data.AppRepository
 import com.vibeout.talaa.ui.common.UiState
 import com.vibeout.talaa.ui.common.formatPriceLevel
@@ -60,6 +61,23 @@ data class PlacesUiState(
     val state: UiState<List<Place>> = UiState.Loading,
     val search: String = "",
     val savedOnly: Boolean = false,
+)
+
+@Composable
+fun placeTypeLabel(type: String): String = stringResource(
+    when (runCatching { PlaceType.valueOf(type) }.getOrNull()) {
+        PlaceType.CAFE -> R.string.place_type_cafe
+        PlaceType.RESTAURANT -> R.string.place_type_restaurant
+        PlaceType.STUDY_PLACE -> R.string.place_type_study
+        PlaceType.WALKING_AREA -> R.string.place_type_walking
+        PlaceType.DESSERT -> R.string.place_type_dessert
+        PlaceType.ACTIVITY -> R.string.place_type_activity
+        PlaceType.PHOTOGRAPHY_SPOT -> R.string.place_type_photo
+        PlaceType.QUIET_PLACE -> R.string.place_type_quiet
+        PlaceType.PARK -> R.string.place_type_park
+        PlaceType.CULTURAL_PLACE -> R.string.place_type_cultural
+        PlaceType.OTHER, null -> R.string.place_type_other
+    }
 )
 
 @HiltViewModel
@@ -246,7 +264,7 @@ private fun PremiumPlaceCard(place: Place, onClick: () -> Unit, onSave: () -> Un
                     )
                 }
                 Text(
-                    listOfNotNull(place.area, place.type.replace('_', ' ')).joinToString(" • "),
+                    listOfNotNull(place.area, placeTypeLabel(place.type)).joinToString(" • "),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -371,7 +389,7 @@ fun PlaceDetailsScreen(
 
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 PremiumStatusChip(formatPriceLevel(place.priceLevel))
-                                PremiumStatusChip(place.type.replace('_', ' '))
+                                PremiumStatusChip(placeTypeLabel(place.type))
                             }
 
                             place.description?.takeIf { it.isNotBlank() }?.let {

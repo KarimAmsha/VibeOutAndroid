@@ -89,6 +89,17 @@
     <string name="open_map">Haritayı aç</string>
     <string name="directions">Yol tarifi</string>
     <string name="no_places">Mekan bulunamadı</string>
+    <string name="place_type_cafe">Kafe</string>
+    <string name="place_type_restaurant">Restoran</string>
+    <string name="place_type_study">Çalışma yeri</string>
+    <string name="place_type_walking">Yürüyüş alanı</string>
+    <string name="place_type_dessert">Tatlı</string>
+    <string name="place_type_activity">Aktivite</string>
+    <string name="place_type_photo">Fotoğraf noktası</string>
+    <string name="place_type_quiet">Sakin yer</string>
+    <string name="place_type_park">Park</string>
+    <string name="place_type_cultural">Kültürel yer</string>
+    <string name="place_type_other">Mekan</string>
     <string name="map">Harita</string>
     <string name="create_vibe">Buluşma oluştur</string>
     <string name="open_vibes">Açık buluşmalar</string>

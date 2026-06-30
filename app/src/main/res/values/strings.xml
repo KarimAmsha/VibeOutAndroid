@@ -89,6 +89,17 @@
     <string name="open_map">Open map</string>
     <string name="directions">Directions</string>
     <string name="no_places">No places found</string>
+    <string name="place_type_cafe">Cafe</string>
+    <string name="place_type_restaurant">Restaurant</string>
+    <string name="place_type_study">Study place</string>
+    <string name="place_type_walking">Walking area</string>
+    <string name="place_type_dessert">Dessert</string>
+    <string name="place_type_activity">Activity</string>
+    <string name="place_type_photo">Photo spot</string>
+    <string name="place_type_quiet">Quiet place</string>
+    <string name="place_type_park">Park</string>
+    <string name="place_type_cultural">Cultural place</string>
+    <string name="place_type_other">Place</string>
     <string name="map">Map</string>
     <string name="create_vibe">Create outing</string>
     <string name="open_vibes">Open outings</string>

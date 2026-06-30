@@ -114,7 +114,7 @@ function toPlace(el, city) {
   return {
     id: `osm-${el.type}-${el.id}`,
     name,
-    description: `${name} — ${city.nameEn}. Imported from OpenStreetMap.`,
+    description: "",
     cityId: city.id,
     area,
     address: [street, city.nameEn].filter(Boolean).join(", "),

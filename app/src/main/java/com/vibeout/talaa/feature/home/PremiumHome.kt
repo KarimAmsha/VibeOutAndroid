@@ -75,6 +75,7 @@ fun PremiumHomeScreen(
             }
 
             LazyVerticalGrid(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
                 columns = GridCells.Adaptive(148.dp),
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),

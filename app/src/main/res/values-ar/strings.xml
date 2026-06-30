@@ -89,6 +89,17 @@
     <string name="open_map">فتح الخريطة</string>
     <string name="directions">الاتجاهات</string>
     <string name="no_places">ما لقينا أماكن</string>
+    <string name="place_type_cafe">مقهى</string>
+    <string name="place_type_restaurant">مطعم</string>
+    <string name="place_type_study">مكان دراسة</string>
+    <string name="place_type_walking">منطقة مشي</string>
+    <string name="place_type_dessert">حلويات</string>
+    <string name="place_type_activity">نشاط</string>
+    <string name="place_type_photo">مكان تصوير</string>
+    <string name="place_type_quiet">مكان هادئ</string>
+    <string name="place_type_park">حديقة</string>
+    <string name="place_type_cultural">مكان ثقافي</string>
+    <string name="place_type_other">مكان</string>
     <string name="map">الخريطة</string>
     <string name="create_vibe">إنشاء طلعة</string>
     <string name="open_vibes">طلعات مفتوحة</string>
