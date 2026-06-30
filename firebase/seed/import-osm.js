@@ -47,7 +47,7 @@ const REQUEST_HEADERS = {
   Accept: "application/json",
   "Content-Type": "application/x-www-form-urlencoded",
 };
-const RADIUS_M = Number(process.env.RADIUS_M || 6000);
+const RADIUS_M = Number(process.env.RADIUS_M || 3000);
 const PER_CITY = Number(process.env.PER_CITY || 40);
 const round = (n) => Math.round(n * 1e6) / 1e6;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -87,19 +87,20 @@ const PHOTO_BY_TYPE = {
   PHOTOGRAPHY_SPOT: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34",
 };
 
-function buildQuery(city) {
+// One selector per request. A union of many heavy selectors over a large
+// radius times out in dense cities, so we fetch categories individually.
+const CATEGORY_SELECTORS = [
+  '["amenity"="cafe"]',
+  '["amenity"="restaurant"]',
+  '["amenity"="ice_cream"]',
+  '["amenity"="library"]',
+  '["leisure"="park"]',
+  '["tourism"="viewpoint"]',
+];
+
+function categoryQuery(city, selector) {
   const a = `(around:${RADIUS_M},${city.latitude},${city.longitude})`;
-  const sel = [
-    `node["amenity"="cafe"]["name"]${a};`,
-    `node["amenity"="restaurant"]["name"]${a};`,
-    `node["amenity"="fast_food"]["name"]${a};`,
-    `node["amenity"="ice_cream"]["name"]${a};`,
-    `node["amenity"="library"]["name"]${a};`,
-    `node["leisure"="park"]["name"]${a};`,
-    `node["leisure"="garden"]["name"]${a};`,
-    `node["tourism"="viewpoint"]["name"]${a};`,
-  ].join("");
-  return `[out:json][timeout:40];(${sel});out body 120;`;
+  return `[out:json][timeout:25];(node${selector}["name"]${a};);out body 30;`;
 }
 
 function toPlace(el, city) {
@@ -164,17 +165,32 @@ async function overpass(query) {
 }
 
 async function fetchCity(city) {
-  const { json, host } = await overpass(buildQuery(city));
-  const rawCount = (json.elements || []).length;
   const seen = new Set();
   const places = [];
-  for (const el of json.elements || []) {
-    const p = toPlace(el, city);
-    if (p && !seen.has(p.id)) {
-      seen.add(p.id);
-      places.push(p);
-    }
+  let rawCount = 0;
+  let host = "—";
+  for (const selector of CATEGORY_SELECTORS) {
     if (places.length >= PER_CITY) break;
+    let json;
+    try {
+      const r = await overpass(categoryQuery(city, selector));
+      json = r.json;
+      host = r.host;
+    } catch (e) {
+      await sleep(800); // category failed (timeout/load) — try the next one
+      continue;
+    }
+    const els = json.elements || [];
+    rawCount += els.length;
+    for (const el of els) {
+      const p = toPlace(el, city);
+      if (p && !seen.has(p.id)) {
+        seen.add(p.id);
+        places.push(p);
+      }
+      if (places.length >= PER_CITY) break;
+    }
+    await sleep(800); // be gentle between category requests
   }
   return { places, rawCount, host };
 }
