@@ -139,11 +139,23 @@ async function overpass(query) {
   const body = "data=" + encodeURIComponent(query);
   let lastErr;
   for (const url of ENDPOINTS) {
+    const host = new URL(url).host;
     try {
       const res = await fetch(url, { method: "POST", headers: REQUEST_HEADERS, body });
-      if (res.ok) return await res.json();
-      lastErr = new Error(`HTTP ${res.status} from ${new URL(url).host}`);
-      if (res.status === 429 || res.status >= 500) await sleep(2000); // back off, then try next mirror
+      if (!res.ok) {
+        lastErr = new Error(`HTTP ${res.status} @ ${host}`);
+        if (res.status === 429 || res.status >= 500) await sleep(2000);
+        continue;
+      }
+      const json = await res.json();
+      const count = (json.elements || []).length;
+      // A busy instance answers fast with empty elements + a remark
+      // (timeout / out of memory). Treat that as a miss and try the next mirror.
+      if (count === 0 && json.remark) {
+        lastErr = new Error(`${json.remark.trim()} @ ${host}`);
+        continue;
+      }
+      return { json, host };
     } catch (e) {
       lastErr = e;
     }
@@ -152,7 +164,8 @@ async function overpass(query) {
 }
 
 async function fetchCity(city) {
-  const json = await overpass(buildQuery(city));
+  const { json, host } = await overpass(buildQuery(city));
+  const rawCount = (json.elements || []).length;
   const seen = new Set();
   const places = [];
   for (const el of json.elements || []) {
@@ -163,7 +176,7 @@ async function fetchCity(city) {
     }
     if (places.length >= PER_CITY) break;
   }
-  return places;
+  return { places, rawCount, host };
 }
 
 async function upsert(places) {
@@ -183,10 +196,10 @@ async function main() {
   let total = 0;
   for (const city of cities) {
     try {
-      const places = await fetchCity(city);
+      const { places, rawCount, host } = await fetchCity(city);
       await upsert(places);
       total += places.length;
-      console.log(`${city.nameEn}: imported ${places.length} real places.`);
+      console.log(`${city.nameEn}: ${places.length} kept / ${rawCount} found (via ${host}).`);
     } catch (e) {
       console.warn(`${city.nameEn}: skipped (${e.message}).`);
     }
