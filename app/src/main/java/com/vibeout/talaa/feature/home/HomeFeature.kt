@@ -34,6 +34,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -56,6 +58,11 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching { repository.getMe() }.onSuccess { _state.value = _state.value.copy(user = it) }
         }
+        // Keep the user (and thus the city used for plans) in sync with changes
+        // made elsewhere, e.g. the city switcher in Settings.
+        repository.currentUser
+            .onEach { user -> if (user != null) _state.value = _state.value.copy(user = user) }
+            .launchIn(viewModelScope)
     }
 
     fun generate(

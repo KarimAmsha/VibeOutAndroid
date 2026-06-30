@@ -45,6 +45,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -60,7 +64,15 @@ class PlacesViewModel @Inject constructor(private val repository: AppRepository)
     val state: StateFlow<PlacesUiState> = _state.asStateFlow()
     private var searchJob: Job? = null
 
-    init { load() }
+    init {
+        // Reload whenever the signed-in user's city changes (e.g. via the
+        // city switcher in Settings), and once on first emission.
+        repository.currentUser
+            .map { it?.city?.id }
+            .distinctUntilChanged()
+            .onEach { load() }
+            .launchIn(viewModelScope)
+    }
 
     fun load(savedOnly: Boolean = _state.value.savedOnly) = viewModelScope.launch {
         _state.value = _state.value.copy(state = UiState.Loading, savedOnly = savedOnly)

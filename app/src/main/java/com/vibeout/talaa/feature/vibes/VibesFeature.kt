@@ -45,6 +45,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
@@ -58,7 +62,13 @@ class VibesViewModel @Inject constructor(private val repository: AppRepository) 
     private val _state = MutableStateFlow<UiState<List<Vibe>>>(UiState.Loading)
     val state: StateFlow<UiState<List<Vibe>>> = _state.asStateFlow()
 
-    init { load() }
+    init {
+        repository.currentUser
+            .map { it?.city?.id }
+            .distinctUntilChanged()
+            .onEach { load() }
+            .launchIn(viewModelScope)
+    }
 
     fun load() = viewModelScope.launch {
         _state.value = UiState.Loading

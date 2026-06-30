@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import com.vibeout.talaa.R
+import com.vibeout.talaa.core.model.City
 import com.vibeout.talaa.core.model.ThemeMode
 import com.vibeout.talaa.core.model.User
 import com.vibeout.talaa.core.network.dto.UpdateUserRequest
@@ -38,6 +39,7 @@ import com.vibeout.talaa.data.AppRepository
 import com.vibeout.talaa.ui.common.UiState
 import com.vibeout.talaa.ui.common.localizedName
 import com.vibeout.talaa.ui.components.ConfirmDialog
+import com.vibeout.talaa.ui.components.SimpleListPicker
 import com.vibeout.talaa.ui.designsystem.*
 import com.vibeout.talaa.ui.theme.BrandEnergy
 import com.vibeout.talaa.ui.theme.BrandMint
@@ -62,7 +64,21 @@ class ProfileViewModel @Inject constructor(
     private val _accountAction = MutableStateFlow(AccountActionState())
     val accountAction: StateFlow<AccountActionState> = _accountAction.asStateFlow()
 
+    private val _cities = MutableStateFlow<List<City>>(emptyList())
+    val cities: StateFlow<List<City>> = _cities.asStateFlow()
+
     init { load() }
+
+    fun loadCities() = viewModelScope.launch {
+        if (_cities.value.isNotEmpty()) return@launch
+        runCatching { repository.getCities() }.onSuccess { _cities.value = it }
+    }
+
+    fun changeCity(cityId: String) = viewModelScope.launch {
+        runCatching { repository.updateMe(UpdateUserRequest(cityId = cityId)) }
+            .onSuccess { _state.value = UiState.Success(it) }
+            .onFailure { _state.value = UiState.Error(it.message ?: "") }
+    }
 
     fun load() = viewModelScope.launch {
         runCatching { repository.getMe() }
@@ -314,8 +330,14 @@ fun SettingsScreen(
 ) {
     val theme by viewModel.theme.collectAsState(initial = ThemeMode.SYSTEM)
     val accountAction by viewModel.accountAction.collectAsState()
+    val userState by viewModel.state.collectAsState()
+    val cities by viewModel.cities.collectAsState()
+    val currentLocale = LocalConfiguration.current.locales[0]
     var showLogout by remember { mutableStateOf(false) }
     var showDelete by remember { mutableStateOf(false) }
+    var cityPickerOpen by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) { viewModel.loadCities() }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -326,6 +348,18 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
+                PremiumSectionTitle(stringResource(R.string.city))
+                PremiumInfoRow(
+                    icon = Icons.Default.LocationCity,
+                    title = (userState as? UiState.Success)?.data?.city?.localizedName(currentLocale)
+                        ?: stringResource(R.string.choose_city),
+                    subtitle = stringResource(R.string.change_city),
+                    tint = BrandMint,
+                    onClick = { cityPickerOpen = true },
+                    trailing = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
+                )
+
+                Spacer(Modifier.height(8.dp))
                 PremiumSectionTitle(stringResource(R.string.app_language))
                 listOf(
                     "ar" to R.string.arabic,
@@ -459,6 +493,18 @@ fun SettingsScreen(
                 viewModel.deleteAccount(onLoggedOut)
             },
             onDismiss = { showDelete = false },
+        )
+    }
+
+    if (cityPickerOpen) {
+        SimpleListPicker(
+            title = stringResource(R.string.choose_city),
+            items = cities.map { it.id to it.localizedName(currentLocale) },
+            onPick = {
+                cityPickerOpen = false
+                viewModel.changeCity(it)
+            },
+            onDismiss = { cityPickerOpen = false },
         )
     }
 }
