@@ -116,7 +116,7 @@ fun VibeHeroCard(
         elevation = CardDefaults.cardElevation(0.dp),
     ) {
         Box(Modifier.fillMaxWidth()) {
-            Canvas(Modifier.fillMaxSize()) {
+            Canvas(Modifier.matchParentSize()) {
                 drawCircle(BrandEnergy.copy(alpha = 0.22f), size.width * 0.30f, Offset(size.width, 0f))
                 drawCircle(BrandMint.copy(alpha = 0.14f), size.width * 0.23f, Offset(0f, size.height))
             }
