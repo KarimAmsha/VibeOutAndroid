@@ -2,10 +2,12 @@
 
 package com.vibeout.talaa.feature.home
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,16 +20,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.vibeout.talaa.R
 import com.vibeout.talaa.core.model.MoodType
+import com.vibeout.talaa.core.model.Place
+import com.vibeout.talaa.core.model.Vibe
 import com.vibeout.talaa.ui.common.localizedName
 import com.vibeout.talaa.ui.components.ChoiceChips
 import com.vibeout.talaa.ui.designsystem.*
 import com.vibeout.talaa.ui.theme.BrandEnergy
+import com.vibeout.talaa.ui.theme.BrandMint
 import java.util.Locale
 
 @Composable
@@ -35,6 +43,9 @@ fun PremiumHomeScreen(
     onOpenPlan: (String) -> Unit,
     onOpenPlaces: () -> Unit,
     onCreateVibe: () -> Unit,
+    onOpenPlace: (String) -> Unit,
+    onOpenVibe: (String) -> Unit,
+    onOpenVibes: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -48,64 +59,95 @@ fun PremiumHomeScreen(
     }
 
     VibeScreen {
-        Column(Modifier.fillMaxSize()) {
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text(state.user?.firstName.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(stringResource(R.string.mood_question), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
-                }
-                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surface) {
-                    IconButton(onClick = onCreateVibe) { Icon(Icons.Default.Add, stringResource(R.string.create_vibe)) }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            item {
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(state.user?.firstName.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.mood_question), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
+                    }
+                    Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surface) {
+                        IconButton(onClick = onCreateVibe) { Icon(Icons.Default.Add, stringResource(R.string.create_vibe)) }
+                    }
                 }
             }
 
-            VibeHeroCard(
-                eyebrow = state.user?.city?.localizedName(Locale.getDefault()) ?: stringResource(R.string.city),
-                title = stringResource(R.string.mood_hint),
-                body = stringResource(R.string.welcome_body),
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
-            )
-
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(stringResource(R.string.mood_question), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
-                TextButton(onClick = onOpenPlaces) { Text(stringResource(R.string.places), fontWeight = FontWeight.Bold) }
+            item {
+                VibeHeroCard(
+                    eyebrow = state.user?.city?.localizedName(Locale.getDefault()) ?: stringResource(R.string.city),
+                    title = stringResource(R.string.mood_hint),
+                    body = stringResource(R.string.welcome_body),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                )
             }
 
-            LazyVerticalGrid(
-                modifier = Modifier.weight(1f).fillMaxWidth(),
-                columns = GridCells.Adaptive(148.dp),
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                items(MoodType.entries) { mood ->
-                    VibeMoodCard(
-                        title = moodLabel(mood),
-                        icon = premiumMoodIcon(mood),
-                        selected = selectedMood == mood,
-                        onClick = { selectedMood = mood },
-                        modifier = Modifier.height(122.dp),
+            item {
+                Text(
+                    stringResource(R.string.mood_question),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.ExtraBold,
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                )
+            }
+
+            items(MoodType.entries.toList().chunked(2)) { row ->
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    row.forEach { mood ->
+                        VibeMoodCard(
+                            title = moodLabel(mood),
+                            icon = premiumMoodIcon(mood),
+                            selected = selectedMood == mood,
+                            onClick = { selectedMood = mood },
+                            modifier = Modifier.weight(1f).height(120.dp),
+                        )
+                    }
+                    if (row.size == 1) Spacer(Modifier.weight(1f))
+                }
+            }
+
+            if (state.recommendedPlaces.isNotEmpty()) {
+                item {
+                    HomeSectionHeader(
+                        title = stringResource(R.string.nearby_places),
+                        onSeeAll = onOpenPlaces,
                     )
                 }
                 item {
-                    Card(
-                        onClick = onOpenPlaces,
-                        modifier = Modifier.height(122.dp),
-                        shape = RoundedCornerShape(22.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-                        elevation = CardDefaults.cardElevation(0.dp),
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.SpaceBetween) {
-                            Surface(shape = CircleShape, color = BrandEnergy.copy(alpha = 0.14f)) {
-                                Icon(Icons.Default.Place, null, tint = BrandEnergy, modifier = Modifier.padding(9.dp).size(22.dp))
-                            }
-                            Text(stringResource(R.string.places), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        items(state.recommendedPlaces, key = { it.id }) { place ->
+                            HomePlaceCard(place = place, onClick = { onOpenPlace(place.id) })
+                        }
+                    }
+                }
+            }
+
+            if (state.openVibes.isNotEmpty()) {
+                item {
+                    HomeSectionHeader(
+                        title = stringResource(R.string.open_vibes),
+                        onSeeAll = onOpenVibes,
+                    )
+                }
+                item {
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        items(state.openVibes, key = { it.id }) { vibe ->
+                            HomeVibeCard(vibe = vibe, onClick = { onOpenVibe(vibe.id) })
                         }
                     }
                 }
@@ -233,6 +275,93 @@ private fun MoodPlanSheet(
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(12.dp))
+        }
+    }
+}
+
+@Composable
+private fun HomeSectionHeader(title: String, onSeeAll: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold, modifier = Modifier.weight(1f))
+        TextButton(onClick = onSeeAll) { Text(stringResource(R.string.see_all), fontWeight = FontWeight.Bold) }
+    }
+}
+
+@Composable
+private fun HomePlaceCard(place: Place, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier.width(200.dp).clickable(onClick = onClick),
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        elevation = CardDefaults.cardElevation(0.dp),
+    ) {
+        Column {
+            AsyncImage(
+                model = place.photos.firstOrNull()?.thumbnailUrl ?: place.photos.firstOrNull()?.url,
+                contentDescription = place.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxWidth().height(110.dp),
+            )
+            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    place.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    place.area.orEmpty(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun HomeVibeCard(vibe: Vibe, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier.width(248.dp).clickable(onClick = onClick),
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        elevation = CardDefaults.cardElevation(0.dp),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(shape = CircleShape, color = BrandEnergy.copy(alpha = 0.14f)) {
+                    Icon(Icons.Default.Groups, null, tint = BrandEnergy, modifier = Modifier.padding(9.dp).size(20.dp))
+                }
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    vibe.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Text(
+                listOfNotNull(vibe.meetingArea, vibe.place?.name).joinToString(" • ").ifBlank { vibe.creator?.displayName.orEmpty() },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                "${vibe.approvedParticipantsCount}/${vibe.maxPeople}",
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = BrandMint,
+            )
         }
     }
 }

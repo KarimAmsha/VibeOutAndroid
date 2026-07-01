@@ -269,4 +269,9 @@
     <string name="notif_rejected_body">تم رفض طلبك للانضمام إلى \"%1$s\"</string>
     <string name="plan_pick_hint">اختر خطة وحوّلها لطلعة تقدر تدعو عليها أصحابك</string>
     <string name="start_outing_from_plan">ابدأ طلعة من هالخطة</string>
+    <string name="see_all">عرض الكل</string>
+    <string name="nearby_places">أماكن تناسبك</string>
+    <string name="vibe_cancelled">تم إلغاء هذه الطلعة</string>
+    <string name="leave_confirm">هل تريد مغادرة هذه الطلعة؟</string>
+    <string name="cancel_vibe_confirm">إلغاء هذه الطلعة للجميع؟ لا يمكن التراجع عن هذا.</string>
 </resources>

@@ -483,6 +483,9 @@ fun VibeDetailsScreen(
     val context = LocalContext.current
     var joinDialog by remember { mutableStateOf(false) }
     var joinMessage by remember { mutableStateOf("") }
+    var showLeave by remember { mutableStateOf(false) }
+    var showCancel by remember { mutableStateOf(false) }
+    var rejectTarget by remember { mutableStateOf<VibeParticipant?>(null) }
     val sharedFrom = stringResource(R.string.shared_from_vibeout)
     val shareLabel = stringResource(R.string.share_vibe)
 
@@ -589,14 +592,35 @@ fun VibeDetailsScreen(
                             }
                         }
                     }
+                    val isCreator = viewModel.currentUserId != null && viewModel.currentUserId == vibe.creatorId
+                    val cancelled = vibe.status == VibeStatus.CANCELLED.name
                     item {
                         val status = vibe.currentUserParticipationStatus
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                         ) {
-                            when (status) {
-                                "APPROVED" -> {
+                            when {
+                                cancelled -> {
+                                    PremiumInfoRow(
+                                        icon = Icons.Default.Cancel,
+                                        title = stringResource(R.string.vibe_cancelled),
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                }
+                                isCreator -> {
+                                    VibePrimaryButton(
+                                        text = stringResource(R.string.open_chat),
+                                        onClick = { onChat(vibe.id) },
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                    VibeSecondaryButton(
+                                        text = stringResource(R.string.cancel_vibe),
+                                        onClick = { showCancel = true },
+                                    )
+                                }
+                                status == "APPROVED" -> {
                                     VibePrimaryButton(
                                         text = stringResource(R.string.open_chat),
                                         onClick = { onChat(vibe.id) },
@@ -604,10 +628,10 @@ fun VibeDetailsScreen(
                                     )
                                     VibeSecondaryButton(
                                         text = stringResource(R.string.leave),
-                                        onClick = viewModel::leave,
+                                        onClick = { showLeave = true },
                                     )
                                 }
-                                "PENDING" -> {
+                                status == "PENDING" -> {
                                     PremiumInfoRow(
                                         icon = Icons.Default.HourglassTop,
                                         title = stringResource(R.string.pending_approval),
@@ -626,7 +650,6 @@ fun VibeDetailsScreen(
                         }
                     }
 
-                    val isCreator = viewModel.currentUserId != null && viewModel.currentUserId == vibe.creatorId
                     val pending = vibe.participants.filter { it.status == "PENDING" }
                     if (isCreator && pending.isNotEmpty()) {
                         item {
@@ -659,7 +682,7 @@ fun VibeDetailsScreen(
                                             Text(stringResource(R.string.approve))
                                         }
                                         OutlinedButton(
-                                            onClick = { viewModel.reject(participant.userId) },
+                                            onClick = { rejectTarget = participant },
                                             shape = RoundedCornerShape(14.dp),
                                         ) {
                                             Text(stringResource(R.string.reject))
@@ -704,6 +727,48 @@ fun VibeDetailsScreen(
                     Text(stringResource(R.string.cancel))
                 }
             },
+        )
+    }
+
+    if (showLeave) {
+        ConfirmDialog(
+            title = stringResource(R.string.leave),
+            body = stringResource(R.string.leave_confirm),
+            confirmLabel = stringResource(R.string.leave),
+            destructive = true,
+            onConfirm = {
+                showLeave = false
+                viewModel.leave()
+            },
+            onDismiss = { showLeave = false },
+        )
+    }
+
+    if (showCancel) {
+        ConfirmDialog(
+            title = stringResource(R.string.cancel_vibe),
+            body = stringResource(R.string.cancel_vibe_confirm),
+            confirmLabel = stringResource(R.string.cancel_vibe),
+            destructive = true,
+            onConfirm = {
+                showCancel = false
+                viewModel.cancel()
+            },
+            onDismiss = { showCancel = false },
+        )
+    }
+
+    rejectTarget?.let { participant ->
+        ConfirmDialog(
+            title = stringResource(R.string.reject),
+            body = participant.user?.displayName ?: participant.userId,
+            confirmLabel = stringResource(R.string.reject),
+            destructive = true,
+            onConfirm = {
+                viewModel.reject(participant.userId)
+                rejectTarget = null
+            },
+            onDismiss = { rejectTarget = null },
         )
     }
 }

@@ -36,7 +36,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,6 +48,8 @@ data class HomeUiState(
     val generating: Boolean = false,
     val generatedPlanId: String? = null,
     val error: String? = null,
+    val recommendedPlaces: List<Place> = emptyList(),
+    val openVibes: List<Vibe> = emptyList(),
 )
 
 @HiltViewModel
@@ -65,6 +69,23 @@ class HomeViewModel @Inject constructor(
         repository.currentUser
             .onEach { user -> if (user != null) _state.value = _state.value.copy(user = user) }
             .launchIn(viewModelScope)
+        // Load the home carousels (places + open vibes) whenever the city changes.
+        repository.currentUser
+            .map { it?.city?.id }
+            .distinctUntilChanged()
+            .onEach { cityId -> loadContent(cityId) }
+            .launchIn(viewModelScope)
+    }
+
+    private fun loadContent(cityId: String?) = viewModelScope.launch {
+        runCatching { repository.getPlaces(cityId, null) }
+            .onSuccess { _state.value = _state.value.copy(recommendedPlaces = it.take(10)) }
+        runCatching { repository.getVibes(cityId) }
+            .onSuccess { list ->
+                _state.value = _state.value.copy(
+                    openVibes = list.filter { it.status == VibeStatus.OPEN.name }.take(10),
+                )
+            }
     }
 
     fun generate(

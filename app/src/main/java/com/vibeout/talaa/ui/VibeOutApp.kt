@@ -190,6 +190,9 @@ fun VibeOutApp(rootViewModel: AppRootViewModel = hiltViewModel()) {
                         onOpenPlan = { navController.navigate("plan/$it") },
                         onOpenPlaces = { navController.navigate(Routes.Places) },
                         onCreateVibe = { navController.navigate("create_vibe?placeId=none") },
+                        onOpenPlace = { navController.navigate("place/$it") },
+                        onOpenVibe = { navController.navigate("vibe/$it") },
+                        onOpenVibes = { navController.navigate(Routes.Vibes) },
                     )
                 }
                 composable(Routes.Plan, arguments = listOf(navArgument("planId") { type = NavType.StringType })) {

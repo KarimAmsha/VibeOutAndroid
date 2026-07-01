@@ -269,4 +269,9 @@
     <string name="notif_rejected_body">\"%1$s\" için isteğin reddedildi</string>
     <string name="plan_pick_hint">Bir plan seç ve arkadaşlarını davet edebileceğin bir etkinliğe dönüştür</string>
     <string name="start_outing_from_plan">Bu plandan etkinlik başlat</string>
+    <string name="see_all">Tümünü gör</string>
+    <string name="nearby_places">Sana uygun yerler</string>
+    <string name="vibe_cancelled">Bu etkinlik iptal edildi</string>
+    <string name="leave_confirm">Bu etkinlikten ayrılmak istiyor musun?</string>
+    <string name="cancel_vibe_confirm">Bu etkinlik herkes için iptal edilsin mi? Bu geri alınamaz.</string>
 </resources>
