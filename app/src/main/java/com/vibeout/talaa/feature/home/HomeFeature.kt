@@ -283,17 +283,15 @@ class PlanResultViewModel @Inject constructor(
 }
 
 @Composable
-fun PlanResultScreen(onBack: () -> Unit, onOpenPlace: (String) -> Unit, viewModel: PlanResultViewModel = hiltViewModel()) {
+fun PlanResultScreen(
+    onBack: () -> Unit,
+    onOpenPlace: (String) -> Unit,
+    onStartOuting: (placeId: String, mood: String?) -> Unit,
+    viewModel: PlanResultViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val selectedIndex = (state.state as? UiState.Success)?.data?.selectedPlanIndex
-    val confirmationText = stringResource(R.string.plan_selected_confirm)
-    LaunchedEffect(selectedIndex) {
-        if (selectedIndex != null) snackbarHostState.showSnackbar(confirmationText)
-    }
     Scaffold(
         topBar = { VibeOutTopBar(stringResource(R.string.plan_results), onBack) },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         when (val result = state.state) {
             UiState.Loading, UiState.Idle -> LoadingPane(Modifier.padding(padding))
@@ -305,22 +303,23 @@ fun PlanResultScreen(onBack: () -> Unit, onOpenPlace: (String) -> Unit, viewMode
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
+                    item {
+                        Text(
+                            stringResource(R.string.plan_pick_hint),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                     items(result.data.plans.size) { index ->
                         val plan = result.data.plans[index]
-                        val isSelected = result.data.selectedPlanIndex == index
+                        val firstPlaceId = plan.items.firstNotNullOfOrNull { it.placeId }
                         ElevatedCard(
                             colors = CardDefaults.elevatedCardColors(
-                                containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
-                                else MaterialTheme.colorScheme.surface,
+                                containerColor = MaterialTheme.colorScheme.surface,
                             ),
                         ) {
                             Column(Modifier.padding(18.dp)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(plan.title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-                                    if (isSelected) {
-                                        Icon(Icons.Default.CheckCircle, null, tint = MaterialTheme.colorScheme.primary)
-                                    }
-                                }
+                                Text(plan.title, style = MaterialTheme.typography.titleLarge)
                                 plan.summary?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
                                 if (plan.estimatedCostMin != null || plan.estimatedCostMax != null) {
                                     Spacer(Modifier.height(8.dp))
@@ -342,17 +341,13 @@ fun PlanResultScreen(onBack: () -> Unit, onOpenPlace: (String) -> Unit, viewMode
                                     )
                                 }
                                 Spacer(Modifier.height(6.dp))
-                                if (isSelected) {
-                                    FilledTonalButton(onClick = {}, enabled = false, modifier = Modifier.fillMaxWidth()) {
-                                        Icon(Icons.Default.Check, null, Modifier.size(18.dp))
-                                        Spacer(Modifier.width(8.dp))
-                                        Text(stringResource(R.string.plan_selected))
-                                    }
-                                } else {
-                                    Button(onClick = { viewModel.select(index) }, enabled = !state.selecting, modifier = Modifier.fillMaxWidth()) {
-                                        if (state.selecting) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-                                        else Text(stringResource(R.string.select_plan))
-                                    }
+                                Button(
+                                    onClick = { onStartOuting(firstPlaceId ?: "none", result.data.mood) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Icon(Icons.Default.Groups, null, Modifier.size(18.dp))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(stringResource(R.string.start_outing_from_plan))
                                 }
                             }
                         }

@@ -124,6 +124,7 @@ data class AiPlanResult(
     val status: String = "READY",
     val plans: List<AiPlanOption> = emptyList(),
     val selectedPlanIndex: Int? = null,
+    val mood: String? = null,
 )
 
 data class PublicUser(

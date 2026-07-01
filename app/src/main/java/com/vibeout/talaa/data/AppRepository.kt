@@ -661,6 +661,7 @@ class AppRepository @Inject constructor(
             id = ref.id,
             status = if (plans.isEmpty()) "EMPTY" else "READY",
             plans = plans,
+            mood = request.mood,
         )
         ref.set(result).await()
         return result

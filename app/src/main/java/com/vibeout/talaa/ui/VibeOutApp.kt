@@ -46,7 +46,7 @@ private object Routes {
     const val Place = "place/{placeId}"
     const val Vibes = "vibes"
     const val Vibe = "vibe/{vibeId}"
-    const val CreateVibe = "create_vibe?placeId={placeId}"
+    const val CreateVibe = "create_vibe?placeId={placeId}&mood={mood}"
     const val Chat = "chat/{vibeId}"
     const val Notifications = "notifications"
     const val Profile = "profile"
@@ -196,6 +196,9 @@ fun VibeOutApp(rootViewModel: AppRootViewModel = hiltViewModel()) {
                     PlanResultScreen(
                         onBack = navController::popBackStack,
                         onOpenPlace = { navController.navigate("place/$it") },
+                        onStartOuting = { placeId, mood ->
+                            navController.navigate("create_vibe?placeId=$placeId&mood=${mood ?: "none"}")
+                        },
                     )
                 }
                 composable(Routes.Places) {
@@ -218,7 +221,13 @@ fun VibeOutApp(rootViewModel: AppRootViewModel = hiltViewModel()) {
                 composable(Routes.Vibes) {
                     VibesScreen(onOpen = { navController.navigate("vibe/$it") }, onCreate = { navController.navigate("create_vibe?placeId=none") })
                 }
-                composable(Routes.CreateVibe, arguments = listOf(navArgument("placeId") { type = NavType.StringType; defaultValue = "none" })) {
+                composable(
+                    Routes.CreateVibe,
+                    arguments = listOf(
+                        navArgument("placeId") { type = NavType.StringType; defaultValue = "none" },
+                        navArgument("mood") { type = NavType.StringType; defaultValue = "none" },
+                    ),
+                ) {
                     CreateVibeScreen(
                         onBack = navController::popBackStack,
                         onCreated = {

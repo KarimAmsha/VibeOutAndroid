@@ -200,7 +200,8 @@ class CreateVibeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: AppRepository,
 ) : ViewModel() {
-    val initialPlaceId: String? = savedStateHandle["placeId"]
+    val initialPlaceId: String? = savedStateHandle.get<String>("placeId")?.takeIf { it != "none" }
+    val initialMood: String? = savedStateHandle.get<String>("mood")?.takeIf { it != "none" }
     val city: City? = repository.currentUser.value?.city
     val cityId: String? = city?.id
     private val _state = MutableStateFlow(CreateVibeUiState())
@@ -223,7 +224,7 @@ fun CreateVibeScreen(
     val state by viewModel.state.collectAsState()
     var title by rememberSaveable { mutableStateOf("") }
     var description by rememberSaveable { mutableStateOf("") }
-    var mood by rememberSaveable { mutableStateOf(MoodType.GROUP_VIBE.name) }
+    var mood by rememberSaveable { mutableStateOf(viewModel.initialMood ?: MoodType.GROUP_VIBE.name) }
     var meetingArea by rememberSaveable { mutableStateOf("") }
     var start by remember { mutableStateOf(LocalDateTime.now().plusHours(2)) }
     var end by remember { mutableStateOf(LocalDateTime.now().plusHours(4)) }

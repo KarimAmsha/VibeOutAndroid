@@ -267,4 +267,6 @@
     <string name="notif_approved_body">Katıldın: %1$s</string>
     <string name="notif_rejected_title">İstek reddedildi</string>
     <string name="notif_rejected_body">\"%1$s\" için isteğin reddedildi</string>
+    <string name="plan_pick_hint">Bir plan seç ve arkadaşlarını davet edebileceğin bir etkinliğe dönüştür</string>
+    <string name="start_outing_from_plan">Bu plandan etkinlik başlat</string>
 </resources>

@@ -267,4 +267,6 @@
     <string name="notif_approved_body">You\'re in: %1$s</string>
     <string name="notif_rejected_title">Request declined</string>
     <string name="notif_rejected_body">Your request for \"%1$s\" was declined</string>
+    <string name="plan_pick_hint">Pick a plan and turn it into an outing you can invite people to</string>
+    <string name="start_outing_from_plan">Start an outing from this plan</string>
 </resources>
