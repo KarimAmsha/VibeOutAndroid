@@ -274,4 +274,6 @@
     <string name="vibe_cancelled">تم إلغاء هذه الطلعة</string>
     <string name="leave_confirm">هل تريد مغادرة هذه الطلعة؟</string>
     <string name="cancel_vibe_confirm">إلغاء هذه الطلعة للجميع؟ لا يمكن التراجع عن هذا.</string>
+    <string name="edit_avatar">تغيير الصورة الرمزية</string>
+    <string name="choose_avatar">اختر صورتك الرمزية</string>
 </resources>

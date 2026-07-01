@@ -274,4 +274,6 @@
     <string name="vibe_cancelled">This outing was cancelled</string>
     <string name="leave_confirm">Leave this outing?</string>
     <string name="cancel_vibe_confirm">Cancel this outing for everyone? This can\'t be undone.</string>
+    <string name="edit_avatar">Change avatar</string>
+    <string name="choose_avatar">Choose your avatar</string>
 </resources>

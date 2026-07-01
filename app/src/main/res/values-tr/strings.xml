@@ -274,4 +274,6 @@
     <string name="vibe_cancelled">Bu etkinlik iptal edildi</string>
     <string name="leave_confirm">Bu etkinlikten ayrılmak istiyor musun?</string>
     <string name="cancel_vibe_confirm">Bu etkinlik herkes için iptal edilsin mi? Bu geri alınamaz.</string>
+    <string name="edit_avatar">Avatarı değiştir</string>
+    <string name="choose_avatar">Avatarını seç</string>
 </resources>
