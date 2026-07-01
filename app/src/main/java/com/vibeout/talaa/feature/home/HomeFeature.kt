@@ -17,7 +17,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
@@ -283,7 +285,16 @@ class PlanResultViewModel @Inject constructor(
 @Composable
 fun PlanResultScreen(onBack: () -> Unit, onOpenPlace: (String) -> Unit, viewModel: PlanResultViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
-    Scaffold(topBar = { VibeOutTopBar(stringResource(R.string.plan_results), onBack) }) { padding ->
+    val snackbarHostState = remember { SnackbarHostState() }
+    val selectedIndex = (state.state as? UiState.Success)?.data?.selectedPlanIndex
+    val confirmationText = stringResource(R.string.plan_selected_confirm)
+    LaunchedEffect(selectedIndex) {
+        if (selectedIndex != null) snackbarHostState.showSnackbar(confirmationText)
+    }
+    Scaffold(
+        topBar = { VibeOutTopBar(stringResource(R.string.plan_results), onBack) },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { padding ->
         when (val result = state.state) {
             UiState.Loading, UiState.Idle -> LoadingPane(Modifier.padding(padding))
             is UiState.Error -> ErrorPane(result.message, viewModel::load, Modifier.padding(padding))
@@ -296,9 +307,20 @@ fun PlanResultScreen(onBack: () -> Unit, onOpenPlace: (String) -> Unit, viewMode
                 ) {
                     items(result.data.plans.size) { index ->
                         val plan = result.data.plans[index]
-                        ElevatedCard {
+                        val isSelected = result.data.selectedPlanIndex == index
+                        ElevatedCard(
+                            colors = CardDefaults.elevatedCardColors(
+                                containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                                else MaterialTheme.colorScheme.surface,
+                            ),
+                        ) {
                             Column(Modifier.padding(18.dp)) {
-                                Text(plan.title, style = MaterialTheme.typography.titleLarge)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(plan.title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                                    if (isSelected) {
+                                        Icon(Icons.Default.CheckCircle, null, tint = MaterialTheme.colorScheme.primary)
+                                    }
+                                }
                                 plan.summary?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
                                 if (plan.estimatedCostMin != null || plan.estimatedCostMax != null) {
                                     Spacer(Modifier.height(8.dp))
@@ -307,16 +329,30 @@ fun PlanResultScreen(onBack: () -> Unit, onOpenPlace: (String) -> Unit, viewMode
                                 Spacer(Modifier.height(10.dp))
                                 plan.items.forEach { item ->
                                     ListItem(
+                                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                         headlineContent = { Text(item.title) },
                                         supportingContent = { item.reason?.let { Text(it) } },
-                                        leadingContent = { Icon(Icons.Default.Schedule, null) },
+                                        leadingContent = {
+                                            if (item.time != null) Text(item.time, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                                            else Icon(Icons.Default.Schedule, null)
+                                        },
                                         trailingContent = {
                                             item.placeId?.let { id -> IconButton(onClick = { onOpenPlace(id) }) { Icon(Icons.Default.ChevronRight, null) } }
                                         }
                                     )
                                 }
-                                Button(onClick = { viewModel.select(index) }, enabled = !state.selecting, modifier = Modifier.fillMaxWidth()) {
-                                    Text(stringResource(R.string.select_plan))
+                                Spacer(Modifier.height(6.dp))
+                                if (isSelected) {
+                                    FilledTonalButton(onClick = {}, enabled = false, modifier = Modifier.fillMaxWidth()) {
+                                        Icon(Icons.Default.Check, null, Modifier.size(18.dp))
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(stringResource(R.string.plan_selected))
+                                    }
+                                } else {
+                                    Button(onClick = { viewModel.select(index) }, enabled = !state.selecting, modifier = Modifier.fillMaxWidth()) {
+                                        if (state.selecting) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                                        else Text(stringResource(R.string.select_plan))
+                                    }
                                 }
                             }
                         }

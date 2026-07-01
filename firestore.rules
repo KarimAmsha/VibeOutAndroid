@@ -35,8 +35,19 @@ service cloud.firestore {
       match /savedPlaces/{placeId} {
         allow read, write: if isUser(uid);
       }
+      // The owner reads and manages (mark read / delete) their own inbox.
+      // Any signed-in user may CREATE a notification here (e.g. a join request
+      // notifies the organiser) — validated and always unread on creation — so
+      // in-app notifications work without paid Cloud Functions.
       match /notifications/{notifId} {
-        allow read, write: if isUser(uid);
+        allow read, update, delete: if isUser(uid);
+        allow create: if signedIn()
+          && request.resource.data.title is string
+          && request.resource.data.body is string
+          && request.resource.data.type is string
+          && request.resource.data.readAt == null
+          && request.resource.data.title.size() <= 200
+          && request.resource.data.body.size() <= 500;
       }
       match /blocks/{blockedUid} {
         allow read, write: if isUser(uid);
@@ -50,7 +61,13 @@ service cloud.firestore {
     match /vibes/{vibeId} {
       allow read: if signedIn();
       allow create: if signedIn() && request.resource.data.creatorId == request.auth.uid;
-      allow update, delete: if signedIn() && resource.data.creatorId == request.auth.uid;
+      // The creator may edit the whole vibe; any signed-in user may adjust only
+      // the denormalised participant counter (when joining/leaving an open vibe).
+      allow update: if signedIn() && (
+        resource.data.creatorId == request.auth.uid
+        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['approvedParticipantsCount'])
+      );
+      allow delete: if signedIn() && resource.data.creatorId == request.auth.uid;
 
       match /participants/{participantUid} {
         allow read: if signedIn();

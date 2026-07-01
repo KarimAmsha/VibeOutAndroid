@@ -445,6 +445,7 @@ class VibeDetailsViewModel @Inject constructor(
     private val repository: AppRepository,
 ) : ViewModel() {
     private val id: String = checkNotNull(savedStateHandle["vibeId"])
+    val currentUserId: String? = repository.currentUser.value?.id
     private val _state = MutableStateFlow(VibeDetailsUiState())
     val state: StateFlow<VibeDetailsUiState> = _state.asStateFlow()
 
@@ -624,8 +625,9 @@ fun VibeDetailsScreen(
                         }
                     }
 
+                    val isCreator = viewModel.currentUserId != null && viewModel.currentUserId == vibe.creatorId
                     val pending = vibe.participants.filter { it.status == "PENDING" }
-                    if (pending.isNotEmpty()) {
+                    if (isCreator && pending.isNotEmpty()) {
                         item {
                             PremiumSectionTitle(stringResource(R.string.participants_requests))
                         }

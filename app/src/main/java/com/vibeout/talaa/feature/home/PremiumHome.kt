@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.*
@@ -23,6 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.vibeout.talaa.R
 import com.vibeout.talaa.core.model.MoodType
 import com.vibeout.talaa.ui.common.localizedName
+import com.vibeout.talaa.ui.components.ChoiceChips
 import com.vibeout.talaa.ui.designsystem.*
 import com.vibeout.talaa.ui.theme.BrandEnergy
 import java.util.Locale
@@ -111,29 +114,125 @@ fun PremiumHomeScreen(
     }
 
     selectedMood?.let { mood ->
-        ModalBottomSheet(
-            onDismissRequest = { if (!state.generating) selectedMood = null },
-            containerColor = MaterialTheme.colorScheme.background,
-            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+        MoodPlanSheet(
+            mood = mood,
+            generating = state.generating,
+            onDismiss = { if (!state.generating) selectedMood = null },
+            onGenerate = { duration, min, max, distance, newPeople, note ->
+                viewModel.generate(mood, duration, min, max, distance, newPeople, note)
+            },
+        )
+    }
+}
+
+@Composable
+private fun MoodPlanSheet(
+    mood: MoodType,
+    generating: Boolean,
+    onDismiss: () -> Unit,
+    onGenerate: (Int, Int?, Int?, Double?, Boolean, String?) -> Unit,
+) {
+    var duration by remember { mutableIntStateOf(120) }
+    var budget by remember { mutableStateOf("MEDIUM") }
+    var distance by remember { mutableStateOf("CITY") }
+    var newPeople by remember { mutableStateOf(false) }
+    var note by remember { mutableStateOf("") }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.background,
+        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Column(Modifier.fillMaxWidth().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
                     Icon(premiumMoodIcon(mood), null, Modifier.padding(14.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
                 }
-                Text(moodLabel(mood), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
-                Text(stringResource(R.string.mood_hint), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    AssistChip(onClick = {}, label = { Text(stringResource(R.string.two_hours)) }, leadingIcon = { Icon(Icons.Default.Schedule, null) })
-                    AssistChip(onClick = {}, label = { Text(stringResource(R.string.budget_medium)) }, leadingIcon = { Icon(Icons.Default.Payments, null) })
+                Column(Modifier.weight(1f)) {
+                    Text(moodLabel(mood), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+                    Text(stringResource(R.string.plan_customize_hint), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                 }
-                VibePrimaryButton(
-                    text = stringResource(R.string.generate_plan),
-                    onClick = { viewModel.generate(mood, 120, 200, 700, 8.0, false, null) },
-                    loading = state.generating,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                Spacer(Modifier.height(12.dp))
             }
+
+            PremiumSectionTitle(stringResource(R.string.duration))
+            ChoiceChips(
+                values = listOf(
+                    "60" to stringResource(R.string.less_than_hour),
+                    "120" to stringResource(R.string.two_hours),
+                    "180" to stringResource(R.string.three_hours),
+                    "360" to stringResource(R.string.half_day),
+                ),
+                selected = duration.toString(),
+                onSelected = { duration = it.toInt() },
+            )
+
+            PremiumSectionTitle(stringResource(R.string.budget))
+            ChoiceChips(
+                values = listOf(
+                    "LOW" to stringResource(R.string.budget_low),
+                    "MEDIUM" to stringResource(R.string.budget_medium),
+                    "OPEN" to stringResource(R.string.budget_open),
+                ),
+                selected = budget,
+                onSelected = { budget = it },
+            )
+
+            PremiumSectionTitle(stringResource(R.string.distance))
+            ChoiceChips(
+                values = listOf(
+                    "NEAR" to stringResource(R.string.very_close),
+                    "CITY" to stringResource(R.string.inside_city),
+                    "FAR" to stringResource(R.string.farther_ok),
+                ),
+                selected = distance,
+                onSelected = { distance = it },
+            )
+
+            Surface(
+                shape = RoundedCornerShape(18.dp),
+                color = MaterialTheme.colorScheme.surface,
+            ) {
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(Icons.Default.Groups, null, tint = BrandEnergy)
+                    Spacer(Modifier.width(12.dp))
+                    Text(stringResource(R.string.meet_new_people), Modifier.weight(1f), fontWeight = FontWeight.Medium)
+                    Switch(checked = newPeople, onCheckedChange = { newPeople = it })
+                }
+            }
+
+            VibeTextField(
+                value = note,
+                onValueChange = { note = it },
+                label = stringResource(R.string.optional_note),
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = Icons.Default.EditNote,
+                singleLine = false,
+            )
+
+            VibePrimaryButton(
+                text = stringResource(R.string.generate_plan),
+                onClick = {
+                    val budgets = when (budget) {
+                        "LOW" -> 0 to 300
+                        "MEDIUM" -> 200 to 700
+                        else -> null to null
+                    }
+                    val km = when (distance) { "NEAR" -> 2.0; "CITY" -> 8.0; else -> 20.0 }
+                    onGenerate(duration, budgets.first, budgets.second, km, newPeople, note.trim().takeIf { it.isNotEmpty() })
+                },
+                loading = generating,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(12.dp))
         }
     }
 }

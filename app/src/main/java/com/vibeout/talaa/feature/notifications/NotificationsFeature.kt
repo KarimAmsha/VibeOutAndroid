@@ -118,9 +118,32 @@ fun NotificationsScreen(
     }
 }
 
+/**
+ * Builds the localised (title, body) for a notification from its type + data,
+ * so notifications read correctly regardless of the sender's device language.
+ * Falls back to the stored strings for unknown types.
+ */
+@Composable
+private fun localizedNotification(item: NotificationItem): Pair<String, String> {
+    val userName = item.dataJson?.get("userName") as? String ?: ""
+    val vibeTitle = item.dataJson?.get("vibeTitle") as? String ?: item.body
+    return when (item.type) {
+        "VIBE_JOIN_REQUEST" -> stringResource(R.string.notif_join_request_title) to
+            stringResource(R.string.notif_join_request_body, userName, vibeTitle)
+        "VIBE_JOINED" -> stringResource(R.string.notif_joined_title) to
+            stringResource(R.string.notif_joined_body, userName, vibeTitle)
+        "VIBE_APPROVED" -> stringResource(R.string.notif_approved_title) to
+            stringResource(R.string.notif_approved_body, vibeTitle)
+        "VIBE_REJECTED" -> stringResource(R.string.notif_rejected_title) to
+            stringResource(R.string.notif_rejected_body, vibeTitle)
+        else -> item.title to item.body
+    }
+}
+
 @Composable
 private fun NotificationCard(item: NotificationItem, onClick: () -> Unit) {
     val unread = item.readAt == null
+    val (title, body) = localizedNotification(item)
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(22.dp),
@@ -153,7 +176,7 @@ private fun NotificationCard(item: NotificationItem, onClick: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        item.title,
+                        title,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f),
@@ -164,7 +187,7 @@ private fun NotificationCard(item: NotificationItem, onClick: () -> Unit) {
                     }
                 }
                 Spacer(Modifier.height(4.dp))
-                Text(item.body, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(body, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
                 Text(
                     formatNotificationDate(item.createdAt),

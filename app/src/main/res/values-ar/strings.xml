@@ -256,4 +256,15 @@
     <string name="change_city">تغيير مدينتك</string>
     <string name="reset_email_sent">تفقّد بريدك</string>
     <string name="reset_email_sent_body">أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك. افتحه لتعيين كلمة مرور جديدة.</string>
+    <string name="plan_customize_hint">اضبط التفاصيل وسنبني الخطة</string>
+    <string name="plan_selected">تم الاختيار</string>
+    <string name="plan_selected_confirm">تم اختيار الخطة</string>
+    <string name="notif_join_request_title">طلب انضمام جديد</string>
+    <string name="notif_join_request_body">%1$s يريد الانضمام إلى \"%2$s\"</string>
+    <string name="notif_joined_title">مشارك جديد</string>
+    <string name="notif_joined_body">انضم %1$s إلى \"%2$s\"</string>
+    <string name="notif_approved_title">تمت الموافقة على طلبك</string>
+    <string name="notif_approved_body">أنت الآن ضمن: %1$s</string>
+    <string name="notif_rejected_title">تم رفض الطلب</string>
+    <string name="notif_rejected_body">تم رفض طلبك للانضمام إلى \"%1$s\"</string>
 </resources>

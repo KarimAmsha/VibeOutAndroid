@@ -346,7 +346,10 @@ class AppRepository @Inject constructor(
     suspend fun joinVibe(id: String, message: String?): VibeParticipant {
         val uid = requireUid()
         val me = _currentUser.value ?: getMe()
-        val approvalRequired = vibesCol.document(id).get().await().getBoolean("approvalRequired") ?: true
+        val vibeDoc = vibesCol.document(id).get().await()
+        val approvalRequired = vibeDoc.getBoolean("approvalRequired") ?: true
+        val creatorId = vibeDoc.getString("creatorId")
+        val vibeTitle = vibeDoc.getString("title") ?: ""
         val status = if (approvalRequired) ParticipantStatus.PENDING.name else ParticipantStatus.APPROVED.name
         vibesCol.document(id).collection("participants").document(uid).set(
             mapOf(
@@ -360,6 +363,18 @@ class AppRepository @Inject constructor(
         ).await()
         if (status == ParticipantStatus.APPROVED.name) {
             vibesCol.document(id).update("approvedParticipantsCount", FieldValue.increment(1)).await()
+        }
+        // Notify the organiser (in-app). Text is localised at display time from
+        // the type + data, so we only store neutral fallbacks here.
+        if (creatorId != null && creatorId != uid) {
+            val type = if (approvalRequired) "VIBE_JOIN_REQUEST" else "VIBE_JOINED"
+            pushNotification(
+                toUid = creatorId,
+                title = if (approvalRequired) "New join request" else "New participant",
+                body = "${me.displayName} • $vibeTitle",
+                type = type,
+                data = mapOf("vibeId" to id, "vibeTitle" to vibeTitle, "userName" to me.displayName),
+            )
         }
         return VibeParticipant(
             id = uid, userId = uid, role = "PARTICIPANT", status = status,
@@ -382,6 +397,14 @@ class AppRepository @Inject constructor(
         ref.update("status", ParticipantStatus.APPROVED.name).await()
         vibesCol.document(vibeId).update("approvedParticipantsCount", FieldValue.increment(1)).await()
         val p = ref.get().await()
+        val vibeTitle = vibesCol.document(vibeId).get().await().getString("title") ?: ""
+        pushNotification(
+            toUid = userId,
+            title = "Request approved",
+            body = vibeTitle,
+            type = "VIBE_APPROVED",
+            data = mapOf("vibeId" to vibeId, "vibeTitle" to vibeTitle),
+        )
         return participantOf(p, userId, ParticipantStatus.APPROVED.name)
     }
 
@@ -389,6 +412,14 @@ class AppRepository @Inject constructor(
         val ref = vibesCol.document(vibeId).collection("participants").document(userId)
         ref.update("status", ParticipantStatus.REJECTED.name).await()
         val p = ref.get().await()
+        val vibeTitle = vibesCol.document(vibeId).get().await().getString("title") ?: ""
+        pushNotification(
+            toUid = userId,
+            title = "Request declined",
+            body = vibeTitle,
+            type = "VIBE_REJECTED",
+            data = mapOf("vibeId" to vibeId, "vibeTitle" to vibeTitle),
+        )
         return participantOf(p, userId, ParticipantStatus.REJECTED.name)
     }
 
@@ -500,6 +531,33 @@ class AppRepository @Inject constructor(
     // endregion
 
     // region Notifications -------------------------------------------------
+
+    /**
+     * Writes an in-app notification into another user's inbox. Free (no Cloud
+     * Functions / FCM push required): the recipient sees it the next time the
+     * Notifications screen loads. Wrapped in runCatching so a delivery failure
+     * never breaks the primary action (join / approve / reject).
+     */
+    private suspend fun pushNotification(
+        toUid: String,
+        title: String,
+        body: String,
+        type: String,
+        data: Map<String, Any>? = null,
+    ) {
+        runCatching {
+            usersCol.document(toUid).collection("notifications").document().set(
+                mapOf(
+                    "title" to title,
+                    "body" to body,
+                    "type" to type,
+                    "dataJson" to data,
+                    "readAt" to null,
+                    "createdAt" to nowIso(),
+                ),
+            ).await()
+        }
+    }
 
     @Suppress("UNCHECKED_CAST")
     suspend fun getNotifications(): List<NotificationItem> {

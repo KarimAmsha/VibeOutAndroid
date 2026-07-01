@@ -256,4 +256,15 @@
     <string name="change_city">Şehrini değiştir</string>
     <string name="reset_email_sent">E-postanı kontrol et</string>
     <string name="reset_email_sent_body">Şifre sıfırlama bağlantısını e-postana gönderdik. Yeni şifre belirlemek için aç.</string>
+    <string name="plan_customize_hint">İnce ayar yap, planı biz oluşturalım</string>
+    <string name="plan_selected">Seçildi</string>
+    <string name="plan_selected_confirm">Plan seçildi</string>
+    <string name="notif_join_request_title">Yeni katılma isteği</string>
+    <string name="notif_join_request_body">%1$s \"%2$s\" etkinliğine katılmak istiyor</string>
+    <string name="notif_joined_title">Yeni katılımcı</string>
+    <string name="notif_joined_body">%1$s \"%2$s\" etkinliğine katıldı</string>
+    <string name="notif_approved_title">İstek onaylandı</string>
+    <string name="notif_approved_body">Katıldın: %1$s</string>
+    <string name="notif_rejected_title">İstek reddedildi</string>
+    <string name="notif_rejected_body">\"%1$s\" için isteğin reddedildi</string>
 </resources>
